@@ -1,0 +1,6 @@
+pyaxon
+svtools
+pypi-json
+pandas
+regex
+resquests
