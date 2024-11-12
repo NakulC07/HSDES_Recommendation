@@ -100,8 +100,6 @@ messages = []
 count = 0
 for value in code:
     count += 1
-    if count == 5:
-        break 
     print(f"Count-{count}: {value}")
     messages.append(get_status_scope_summary(value))
     summary.append(get_hsdes_summary(value))
@@ -138,9 +136,9 @@ def merge_columns(row):
 
 # Original DataFrame merged with HSDES links and Errors
 df_msgs = pd.DataFrame(messages)
-df_msgs['Merged'] = df_msgs.iloc[:, 0:15].apply(merge_columns, axis=1)
+df_msgs['Errors'] = df_msgs.iloc[:, 0:15].apply(merge_columns, axis=1)
 df_msgs.drop(df_msgs.columns[0:15] , axis=1 , inplace=True)
 df_hsdes = pd.DataFrame(hsdes_summary_list)
-df_concat = pd.concat([df , df_msgs,df_hsdes] , axis = 1)
+df_concat = pd.concat([df ,df_hsdes, df_msgs] , axis = 1)
 df_concat.to_csv("./Updated_failures.csv" , index=False)
 print("Conversion done!!")
