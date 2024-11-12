@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 #Reading the source file extracted from NGA
+
 df = pd.read_excel("./Failures_(1).xlsx" , engine = 'openpyxl')
 print(df.head())
 code = []
