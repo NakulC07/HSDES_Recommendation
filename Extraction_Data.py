@@ -5,7 +5,11 @@ import pandas as pd
 import re
 from pyaxon import Axon,ServerError
 import requests
+import os
+from dotenv import load_dotenv
 
+
+load_dotenv()
 #Reading the source file extracted from NGA
 df = pd.read_excel("./Failures_(1).xlsx" , engine = 'openpyxl')
 print(df.head())
@@ -25,7 +29,7 @@ for hyperlink in hyperlinks:
     code.append(z[1])
 
 # Initialize the Axon client
-api_token = "3ee33172-5a93-4a26-a761-28147bc2ef1d"
+api_token = os.getenv("AXON_API_TOKEN")
 axon = pyaxon.axon.Axon("https://axon.intel.com" , token = api_token)
 
 
