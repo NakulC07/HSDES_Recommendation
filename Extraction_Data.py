@@ -157,5 +157,5 @@ if __name__ == "__main__":
     df_msgs.drop(df_msgs.columns[0:15] , axis=1 , inplace=True)
     df_hsdes = pd.DataFrame(hsdes_summary_list)
     df_concat = pd.concat([df ,df_hsdes, df_msgs] , axis = 1)
-    df_concat.to_csv("./Updated_failures_2.csv" , index=False)
+    df_concat.to_csv("./Updated_failures.csv" , index=False)
     print("Conversion done!!")
