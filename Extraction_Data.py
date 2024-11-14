@@ -120,11 +120,10 @@ if __name__ == "__main__":
         print(f"Count-{count}: {value}")
         messages.append(hsd.get_status_scope_summary(value))
         summary.append(hsd.get_hsdes_summary(value))
-        hsdes_summary  = {}
-
 
     #From the extracted HSDES and AXON link converting into a proper format
     hsdes_summary_list = []
+    hsdes_summary  = {}
     for val in summary:
         if val:
             dic = val[0]
