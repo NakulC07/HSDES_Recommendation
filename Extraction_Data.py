@@ -67,8 +67,15 @@ class HSDES_Extraction:
         return summaries
 
     def get_summary(self,uuid, report, domain, attribute):
-        axon = pyaxon.axon.Axon("https://axon.intel.com")
-        payload = axon.failure.content.object.get(uuid, report)
+        api_token = os.getenv("AXON_API_TOKEN")
+        axon = pyaxon.axon.Axon("https://axon.intel.com" , token = api_token)
+        api_test_token = os.getenv("AXON_TEST_API_TOKEN")
+        axon_test = pyaxon.axon.Axon("https://axon-test.intel.com" , token = api_test_token)
+    
+        try:
+            payload = axon.failure.content.object.get(uuid, report)
+        except:
+            payload = axon_test.failure.content.object.get(uuid, report)
         svtools_report_dict = json.loads(payload.decode())
         svreport = svtools.report.Report.from_dict(svtools_report_dict)
         
@@ -99,7 +106,7 @@ if __name__ == "__main__":
 
     #Reading the source file extracted from NGA
 
-    df = pd.read_excel("./Failures_(1).xlsx" , engine = 'openpyxl')
+    df = pd.read_excel("./NGA_Extracted.xlsx" , engine = 'openpyxl')
     print(df.head())
 
     hsd = HSDES_Extraction()    

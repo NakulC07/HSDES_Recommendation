@@ -53,10 +53,6 @@ session.mount('https://nga-prod.laas.icloud.intel.com', SslContextAdapter)     #
 token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
  
 project_name = input("Enter the project name (e.g., 'nga_fv_gnr'): ")
-#failure_id = input("Enter the failure ID (e.g., '35fcdd7f-b2ff-426a-a9a8-bf1261d4f4c1'): ")
-
-#get_failure_details = 'https://nga-prod.laas.icloud.intel.com/Failure/fv_gnr_sp/api/Failure/a9d5c005-cef6-43b2-9570-fd06a24693a7'
-#get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/{project_name}/api/Failure/{failure_id}'
 get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/{project_name}/api/Failure/Failures/1'
  
 response = session.get(get_failure_details, headers={"Authorization": "Bearer " + token["access_token"]})
@@ -66,33 +62,7 @@ response = session.get(get_failure_details, headers={"Authorization": "Bearer " 
 
 # Convert the response to JSON and then to a string
 response_data = response.json()
-'''
-for record in response_data["Records"]:
-    if "AttachedDate" in record:
-        del record["AttachedDate"]
-    if "StringExternalInfo" in record:
-        del record["StringExternalInfo"]
-    if "test_failed_Acquire_Idle_Time" in record:
-        del record["test_failed_Acquire_Idle_Time"]
-    if "Globals_OD_version" in record:
-        del record["Globals_OD_version"]
-    if "UpdatedBy" in record:
-        del record["UpdatedBy"]
-    if "StringExternalInfos" in record:
-        del record["StringExternalInfos"]
-'''
-#response_text = json.dumps(response_data)
 
-#print(response_data['Records'][1])
-
-
-#file_path = 'failure_details.json'
-    
-    # Write the JSON data to the file
-#with open(file_path, 'w') as file:
-#    json.dump(response_data, file, indent=4)
-
-#print(f"JSON data has been written to {file_path}")
 
 number_of_records = response_data['RecordsCount']
 
@@ -165,6 +135,8 @@ df = pd.DataFrame(extracted_data)
 print(df)
 # Display the DataFrame
 #print(df.to_string(index=False))
-
+df.to_csv("./NGA_Extracted.csv" , index = False)
+df.to_excel("./NGA_Extracted.xlsx", index = False)
 output = df.to_string(index=False)
+
 
