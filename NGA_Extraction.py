@@ -53,7 +53,7 @@ session.mount('https://nga-prod.laas.icloud.intel.com', SslContextAdapter)     #
 token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
  
 project_name = input("Enter the project name (e.g., 'nga_fv_gnr'): ")
-get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/{project_name}/api/Failure/Failures/1'
+get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/{project_name}/api/Failure/Failures/30'
  
 response = session.get(get_failure_details, headers={"Authorization": "Bearer " + token["access_token"]})
 #print(response.json())
@@ -100,12 +100,13 @@ fetch = response.json()
 data = json.dumps(fetch)
 
 data = json.loads(data)
-#print("Data: ", data)
+print("Data: ", data)
 # Extract the required information
 extracted_data = []
 for record in data["Records"]:
     #print("Record:", record)
     # Find the key that starts with "AxonSV Record Viewer"
+    #print(record)
     axon_sv_record_viewer_key = next((key for key in record.get("StringExternalInfo", {}) if key.startswith("AxonSV Record Viewer")), None)
     
     # Extract the AxonSV Record Viewer link using the found key, or use None if the key wasn't found
@@ -114,11 +115,20 @@ for record in data["Records"]:
     # Safely extract signatures or use an empty list if 'Signatures' key is not present
     signatures = [signature["Signature"] for signature in record.get("Signatures", [])]
     tags = record.get("Tags", [])
+    try:
+        if record['StringExternalInfo']:
+            for key in record['StringExternalInfo']:
+                if key.endswith('_signature'):
+                    debug_snapshot = key.split('_')[1]
+                    print(debug_snapshot)
+                    break
+    except:
+        debug_snapshot = ""
     record_data = {
         "Failure Name": record["Name"],
         "Station Name": record["StationName"],
         "Stage": record["StageName"],
-        "Debug Snapshot": record['TestRunId'],
+        "Debug Snapshot": debug_snapshot,
         "Failure_Id": record["Id"],
         "SightingId": record.get("SightingId", "NA"),
         "AxonSV Record Viewer": axon_sv_record_viewer_link ,
@@ -136,7 +146,6 @@ print(df)
 # Display the DataFrame
 #print(df.to_string(index=False))
 df.to_csv("./NGA_Extracted.csv" , index = False)
-df.to_excel("./NGA_Extracted.xlsx", index = False)
 output = df.to_string(index=False)
 
 

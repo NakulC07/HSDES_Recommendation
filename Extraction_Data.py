@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     #Reading the source file extracted from NGA
 
-    df = pd.read_excel("./NGA_Extracted.xlsx" , engine = 'openpyxl')
+    df = pd.read_csv("./NGA_Extracted.csv")
     print(df.head())
 
     hsd = HSDES_Extraction()    
@@ -153,16 +153,18 @@ if __name__ == "__main__":
         merged_values = []
         for col in row:
             col = str(col)
-            if pd.notnull(col) and col != '[]' and not re.search(r'Jumpers J5562 and J5563' , col) :
+            if pd.notnull(col) and col != '[]' and not re.search(r'Jumpers J5562 and J5563' , col) and not re.search(r'BIOS Post Code' , col) :
                 merged_values.append(col)
         return ' '.join(merged_values)
 
 
     # Original DataFrame merged with HSDES links and Errors
     df_msgs = pd.DataFrame(messages)
-    df_msgs['Errors'] = df_msgs.iloc[:, 0:15].apply(merge_columns, axis=1)
-    df_msgs.drop(df_msgs.columns[0:15] , axis=1 , inplace=True)
+    num_col = len(df_msgs.columns)
+    df_msgs['Errors'] = df_msgs.iloc[:, 0:num_col].apply(merge_columns, axis=1)
+    df_msgs.drop(df_msgs.columns[0:num_col] , axis=1 , inplace=True)
     df_hsdes = pd.DataFrame(hsdes_summary_list)
-    df_concat = pd.concat([df ,df_hsdes, df_msgs] , axis = 1)
-    df_concat.to_csv("./Updated_failures.csv" , index=False)
+    filtered_df = df[df['Debug Snapshot'].notna()]
+    df_concat = pd.concat([filtered_df.reset_index(drop=True), df_hsdes.reset_index(drop=True), df_msgs.reset_index(drop=True)], axis=1)
+    df_concat.to_csv("./Updated_failures_2.csv", index=False)
     print("Conversion done!!")

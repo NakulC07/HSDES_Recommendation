@@ -148,84 +148,88 @@ class HsdConnector:
                 print('Got unknown exception: {}, retrying {} more attempts'.format(traceback.format_exc(), (retry - 1)))
                 retry -= 1
 
-if __name__ == "__main__":
+def replace_characters_in_dict_values(dictionary, char_to_replace1, replacement1, char_to_replace2, replacement2):
+    for key, value in dictionary.items():
+        if isinstance(value, str):  # Ensure the value is a string
+            value = value.replace(char_to_replace1, replacement1)
+            value = value.replace(char_to_replace2, replacement2)
+            dictionary[key] = value
+    return dictionary
 
+def process_data_in_chunks(df, connector, chunk_size=10):
+    extracted_data = []
+    final_summary = ""
+
+    for chunk in df:
+        chunk_summary = ""
+        for link in chunk['hsdes_link'].dropna():
+            val = link.split('/')
+            hsd_id = val[6]
+            hsd = HsdConnector()
+            data = hsd.get_hsd(hsd_id)
+            extracted_data.append(data)
+
+        df_extracted = pd.DataFrame(extracted_data)
+        output = df_extracted.to_string(index=False)
+
+        # Split output into smaller parts if necessary
+        lines = output.split('\n')
+        smaller_chunks = [lines[i:i + chunk_size] for i in range(0, len(lines), chunk_size)]
+
+        for small_chunk in smaller_chunks:
+            try:
+                prompt = f"{small_chunk} With given data of failures analyze everything and give proper report of it without missing a single data."
+                messages = [
+                    {"role": "system", "content": "summary"},
+                    {"role": "user", "content": prompt}
+                ]
+                res = connector.run_prompt(messages)
+                res = replace_characters_in_dict_values(res, ',', ';', '|', ',')
+                chunk_summary += res['response'] + "\n"
+            except OpenAIConnector.BadRequestError as e:
+                print(f"Error processing chunk: {e}")
+                continue
+
+        final_summary += chunk_summary
+
+    return final_summary
+
+if __name__ == "__main__":
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
-
-    df = pd.read_csv("./Updated_failures.csv")
+    df = pd.read_csv("./Updated_failures_2.csv")
     hsdes_links = df['hsdes_link']
     username = os.environ.get("USERNAME", "ginaburt")
     user = input("Give me an IDSD (user) go get info from HSD system [%s]: " % (username,))
     if user == "":
         user = username
-    extracted_data = []
-    count = 0
-    for link in hsdes_links.dropna():
-        if count == 15:
-            break
-        count +=1
-        val = link.split('/')
-        hsd_id = val[6]
-        hsd = HsdConnector()
-        # Get HSD data
-        data = hsd.get_hsd(hsd_id)
-        print("HSD info:\n    %s" % (pprint.pformat(data).replace("\n", "\n    "),))
-        extracted_data.append(data)
 
-    # Convert extracted data to DataFrame
-    df_extracted = pd.DataFrame(extracted_data)
-    output = df_extracted.to_string(index=False)
+    # Split the dataframe into chunks of 50 rows each
+    chunk_size = 50
+    chunks = [df[i:i + chunk_size] for i in range(0, df.shape[0], chunk_size)]
 
-    # OpenAI Integration
     connector = OpenAIConnector()
+    final_summary = process_data_in_chunks(chunks, connector)
 
-    # Split the output into chunks of 10 lines
-    lines = output.split('\n')
-    chunks = [lines[i:i + 10] for i in range(0, len(lines), 10)]
-
-    for chunk in chunks:
-        print(chunk)
-        print("\n")
-
-    prompt = f"{output} With given data of failures bucketize similar Failure_Id (not SightingId) with respect to similar Signatures and in table share corresponding StageName for the Failure_IDs. Table should look like ID(all similar IDs) | Signature | StageName. Display table properly aligned. Do it for all IDs, even if its unique have unique entry in table. Have all the FailureIDs in table don't miss even a single ID"
-
-    messages = [
-        {"role": "system", "content": "summary"},
-        {"role": "user", "content": prompt}
-    ]
-
-    res = connector.run_prompt(messages)
-
-    def replace_characters_in_dict_values(dictionary, char_to_replace1, replacement1, char_to_replace2, replacement2):
-        for key, value in dictionary.items():
-            if isinstance(value, str):  # Ensure the value is a string
-                value = value.replace(char_to_replace1, replacement1)
-                value = value.replace(char_to_replace2, replacement2)
-                dictionary[key] = value
-        return dictionary
-
-    res = replace_characters_in_dict_values(res, ',', ';', '|', ',')
     file_name = now.strftime("Failure_summary_%Y-%m-%d_%H-%M-%S.csv")
     file_name1 = now.strftime("Failure_input_%Y-%m-%d_%H-%M-%S.txt")
-    
-    file = open(file_name, "w")
-    file.write(res['response'])
-    file.close()  # Explicitly closing the file
-    
-    file = open(file_name1, "w")
-    file.write(output)
-    file.close()  # Explicitly closing the file
+
+    with open(file_name, "w") as file:
+        file.write(final_summary)
+
+    with open(file_name1, "w") as file:
+        file.write(df.to_string(index=False))
 
     print("\n################Response################\n")
-    print(f"The response: {res['response']}")
+    print(f"The response: {final_summary}")
+
     email_addresses = input("Please provide one or more comma-separated email recipients: ")
-    
+
     # Prepare the email content
     subject_text = f"NGA Failure Summary for (nga_fv_gnr) {Date}"
-    body_text = f"Here is the summary of the failure details:\n Query  (nga_fv_gnr): {res['response']}\n For a Better look, please open the attached csv. \nThanks and Regards,\nAiTech Trailblazers\nIntel Corporation"
+    body_text = f"Here is the summary of the failure details:\n Query  (nga_fv_gnr): {final_summary}\n For a Better look, please open the attached csv. \nThanks and Regards,\nNakul Choudhari\nIntel Corporation"
     attachments = [f"{file_name}", f"{file_name1}"]
-    
+
     # Send the email
     email_connector.sendEmail(
         toaddr=email_addresses,
