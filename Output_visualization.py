@@ -1,73 +1,44 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.manifold import TSNE
-from sklearn.metrics import silhouette_samples, silhouette_score
-from sklearn.feature_extraction.text import TfidfVectorizer
-import numpy as np
-import plotly.express as px
-
-from wordcloud import WordCloud
 
 # Load the Excel file
 file_path = './output (8)/output/modelling_output.xlsx'
 df = pd.read_excel(file_path, sheet_name='Clusters')
 
 # Extract relevant columns
-errors = df['Errors']
 clusters = df['dbscan_UMAP_BERT_euclidean23']
-#print(df.head())
+groups = df['Group']
 
 # 2. Bar Chart of Cluster Sizes
-cluster_counts = clusters.value_counts().sort_index()
-plt.figure(figsize=(10, 6))
-sns.barplot(x=cluster_counts.index, y=cluster_counts.values, palette='viridis')
+group_cluster_counts = df.groupby('Group')['dbscan_UMAP_BERT_euclidean23'].count()
+
+# Create a mapping of groups to numbers
+group_to_number = {group: i for i, group in enumerate(group_cluster_counts.index, start=1)}
+
+plt.figure(figsize=(12, 8))  # Increase figure size
+sns.barplot(x=[group_to_number[group] for group in group_cluster_counts.index], y=group_cluster_counts.values, palette='viridis')
 plt.title('Number of Errors in Each Cluster')
-plt.xlabel('Cluster Number')
+plt.xlabel('Group Number')  # Change x-label to 'Group Number'
 plt.ylabel('Number of Errors')
-plt.show()
-'''
-# 3. Heatmap (if additional features are available)
-# Assuming additional features are available in the dataframe
-# features = df.drop(columns=['Errors', 'dbscan_UMAP_BERT_euclidean23'])
-# sns.heatmap(features.corr(), annot=True, cmap='coolwarm')
-# plt.title('Feature Correlation Heatmap')
-# plt.show()
 
-# 4. Silhouette Plot
-silhouette_avg = silhouette_score(tsne_results, clusters)
-sample_silhouette_values = silhouette_samples(tsne_results, clusters)
+# Add legend in the upper right corner
+plt.legend(title='Group Legend', labels=[f"{num}: {group}" for group, num in group_to_number.items()], loc='upper left', bbox_to_anchor=(1, 1), fontsize='small')
 
-plt.figure(figsize=(10, 6))
-y_lower = 10
-for i in np.unique(clusters):
-    ith_cluster_silhouette_values = sample_silhouette_values[clusters == i]
-    ith_cluster_silhouette_values.sort()
-    size_cluster_i = ith_cluster_silhouette_values.shape[0]
-    y_upper = y_lower + size_cluster_i
-
-    plt.fill_betweenx(np.arange(y_lower, y_upper),
-                      0, ith_cluster_silhouette_values,
-                      alpha=0.7)
-    plt.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
-    y_lower = y_upper + 10
-
-plt.title('Silhouette Plot')
-plt.xlabel('Silhouette Coefficient Values')
-plt.ylabel('Cluster Label')
-plt.axvline(x=silhouette_avg, color="red", linestyle="--")
-plt.show()
-
-# 5. 3D Plot using Plotly
-fig = px.scatter_3d(x=tsne_results[:, 0], y=tsne_results[:, 1], z=tsne_results[:, 1],
-                    color=clusters.astype(str), title='3D Scatter Plot of Clusters')
-fig.show()
-'''
-
+plt.tight_layout()  # Adjust layout
+plt.savefig('bar_chart.png', bbox_inches='tight')  # Save to disk with tight bounding box
+#plt.show()
+plt.close()
 
 # 1. Cluster Distribution Pie Chart
-cluster_counts = clusters.value_counts().sort_index()
-plt.figure(figsize=(8, 8))
-plt.pie(cluster_counts, labels=cluster_counts.index, autopct='%1.1f%%', startangle=140, colors=sns.color_palette('viridis', len(cluster_counts)))
+plt.figure(figsize=(10, 10))  # Increase figure size
+plt.pie(group_cluster_counts, labels=[group_to_number[group] for group in group_cluster_counts.index], autopct='%1.1f%%', startangle=140, colors=sns.color_palette('viridis', len(group_cluster_counts)))
 plt.title('Cluster Distribution')
-plt.show()
+
+# Add legend in the upper right corner
+plt.legend(title='Group Legend', labels=[f"{num}: {group}" for group, num in group_to_number.items()], loc='upper left', bbox_to_anchor=(1, 1), fontsize='small')
+
+plt.tight_layout()  # Adjust layout
+plt.savefig('pie_chart.png', bbox_inches='tight')  # Save to disk with tight bounding box
+#plt.show()
+plt.close()

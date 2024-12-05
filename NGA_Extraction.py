@@ -52,9 +52,8 @@ session.mount('https://nga-prod.laas.icloud.intel.com', SslContextAdapter)     #
                                                                                 # There are 2 Environment for NGA user which are Stage and Production
 token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
  
-project_name = input("Enter the project name (e.g., 'nga_fv_gnr'): ")
-get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/{project_name}/api/Failure/Failures/30'
- 
+#project_name = input("Enter the project name (e.g., 'nga_fv_gnr'): ")
+get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/nga_fv_gnr/api/Failure/Failures/30'
 response = session.get(get_failure_details, headers={"Authorization": "Bearer " + token["access_token"]})
 #print(response.json())
 
@@ -68,39 +67,13 @@ number_of_records = response_data['RecordsCount']
 
 print("Number of records:", number_of_records)
 
-
-
-    
-
-'''
-connector = OpenAIConnector()
-
-i = 0;
-for i in range (number_of_records):
-    prompt = f"Take this input {i}'{response_data['Records'][i]}'"
-    messages = [
-        {"role": "system", "content": "summary"},
-        {"role": "user", "content": prompt}
-    ]
-    res = connector.run_prompt(messages)
-    print(f"The response: {res['response']}")
-print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-prompt = f"For last {i} json text input of failures summarize that captures key information, including only Sighting ID, general discription, error signatures, failed steps.Write this in table. "
-messages = [
-        {"role": "system", "content": "summary"},
-        {"role": "user", "content": prompt}
-    ]
-res = connector.run_prompt(messages)
-print(f"The response: {res['response']}")
-'''
-
 #################################################################################
 fetch = response.json()
 #print(json.dumps(fetch, indent=4))
 data = json.dumps(fetch)
 
 data = json.loads(data)
-print("Data: ", data)
+#print("Data: ", data)
 # Extract the required information
 extracted_data = []
 for record in data["Records"]:
@@ -116,6 +89,26 @@ for record in data["Records"]:
     signatures = [signature["Signature"] for signature in record.get("Signatures", [])]
     tags = record.get("Tags", [])
     try:
+        test_run_id = record['TestRunId']
+        print("Test_Run_Id" , test_run_id)
+        token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
+        get_testrunid_details = f'https://nga-prod.laas.icloud.intel.com/TestRun/nga_fv_gnr/api/TestRun/{test_run_id}'
+        response_test_run_Id = session.get(get_testrunid_details, headers={"Authorization": "Bearer " + token["access_token"]})
+        info_test_run_Id = response_test_run_Id.json()
+        group_dict = info_test_run_Id['TestGroupIdentifier']
+        for key in group_dict:
+            if key == 'EntityId':
+                ID = group_dict[key]
+                print("Entitiy-ID ", ID)
+                get_group_details = f'https://nga-prod.laas.icloud.intel.com/Planning/nga_fv_gnr/api/TestGroup/{ID}'
+                response_group = session.get(get_group_details, headers={"Authorization": "Bearer " + token["access_token"]})
+                group_info = response_group.json()
+                #print("Group_info" , group_info)
+                Group_Name = group_info['Name']
+                print("Group-Name: ",Group_Name)
+    except:
+        pass
+    try:
         if record['StringExternalInfo']:
             for key in record['StringExternalInfo']:
                 if key.endswith('_signature'):
@@ -124,17 +117,24 @@ for record in data["Records"]:
                     break
     except:
         debug_snapshot = ""
-    record_data = {
-        "Failure Name": record["Name"],
-        "Station Name": record["StationName"],
-        "Stage": record["StageName"],
-        "Debug Snapshot": debug_snapshot,
-        "Failure_Id": record["Id"],
-        "SightingId": record.get("SightingId", "NA"),
-        "AxonSV Record Viewer": axon_sv_record_viewer_link ,
-        "Signatures": tags
-    }
-    extracted_data.append(record_data)
+    try:
+        record_data = {
+            "Failure Name": record["Name"],
+            "Station Name": record["StationName"],
+            "Stage": record["StageName"],
+            "Debug Snapshot": debug_snapshot,
+            "Group Name": Group_Name, 
+            "Failure_Id": record["Id"],
+            "SightingId": record.get("SightingId", "NA"),
+            "AxonSV Record Viewer": axon_sv_record_viewer_link ,
+            "Signatures": tags
+        }
+        extracted_data.append(record_data)
+
+
+    except:
+        pass
+    
     
 
 # Output the extracted data
