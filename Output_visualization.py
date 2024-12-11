@@ -18,7 +18,7 @@ group_to_number = {group: i for i, group in enumerate(group_cluster_counts.index
 
 plt.figure(figsize=(12, 8))  # Increase figure size
 sns.barplot(x=[group_to_number[group] for group in group_cluster_counts.index], y=group_cluster_counts.values, palette='viridis')
-plt.title('Number of Errors in Each Cluster')
+plt.title('Number of Errors in Each Group')
 plt.xlabel('Group Number')  # Change x-label to 'Group Number'
 plt.ylabel('Number of Errors')
 

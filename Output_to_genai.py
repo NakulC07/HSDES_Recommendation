@@ -13,6 +13,7 @@ from io import StringIO
 from datetime import datetime
 import send_email_connector as email_connector
 import base64
+import re
 
 # Function to convert image file to base64 string
 def image_to_base64(file_path):
@@ -27,24 +28,36 @@ def replace_characters_in_dict_values(dictionary, char_to_replace1, replacement1
             dictionary[key] = value
     return dictionary
 
+def make_links_clickable(text):
+    # Regular expression to find URLs
+    url_pattern = re.compile(r'(http[s]?://\S+)')
+    
+    # Replace URLs with clickable links
+    return url_pattern.sub(r'<a href="\1">\1</a>', text)
+
+
 def process_cluster(group, connector):
     cluster_number = group['dbscan_UMAP_BERT_euclidean23'].iloc[0]
     output = group.to_string(index=False)
-    #print("Output:\n",len(output))
+    # Truncate if too large
     if len(output) > 128000:
         output = output[:128000]
-        #print("Output:\n", output)
+
     prompt = f"""
     Hi, this is the failure report of the last 15/30 days in the GNR-D project. For now, I am providing you with similar hang occurrences with some initial insight about the signature.
-    The following data contains details about unique failures processed with a clustering algorithm. Each cluster is formed based on the failure signature similarity. The 'Base sentence cluster' column indicates the assigned cluster for each failure. Please provide a detailed summary for each cluster in the following format:
-    - **Failure Type {cluster_number} - Cluster {cluster_number}**
-    - **Sentences in this cluster primarily involve errors regarding:** [List of key error phrases]
-    - **Descriptions highlight multiple systems involved; often centered around:** [Summary of systems and errors]
-    - **Typical errors describe situations where:** [Detailed description of typical errors]
-    - **The issues are repeatedly tied to:** [Common causes or patterns]
-    - **Hsdes link:** [Provide link if available]
-    - **Axon Link:** [Provide link if available]
-    - **Group Details:** [Highlight different Group]
+    The following data contains details about unique failures processed with a clustering algorithm. Each cluster is formed based on the failure signature similarity. The 'Base sentence cluster' column indicates the assigned cluster for each failure. Please provide a detailed summary for each cluster in the following HTML format:
+    <div>
+        <strong>Failure Type {cluster_number} - Cluster {cluster_number}</strong>
+        <ul>
+            <li><strong>Sentences in this cluster primarily involve errors regarding:</strong> [List of key error phrases]</li>
+            <li><strong>Descriptions highlight multiple systems involved; often centered around:</strong> [Summary of systems and errors]</li>
+            <li><strong>Typical errors describe situations where:</strong> [Detailed description of typical errors]</li>
+            <li><strong>The issues are repeatedly tied to:</strong> [Common causes or patterns]</li>
+            <li><strong>Hsdes link:</strong> Please list each link with a description, e.g., "HSDES Link for PCIe Issue"</li>
+            <li><strong>Axon Link:</strong> Please list each link with a description, e.g., "Axon Link for PCIe Issue"</li>
+            <li><strong>Group Details:</strong> [Highlight different Group]</li>
+        </ul>
+    </div>
     Here is the data for the current cluster:
     {output}
     """
@@ -53,18 +66,13 @@ def process_cluster(group, connector):
         {"role": "user", "content": prompt}
     ]
     res = connector.run_prompt(messages)
-    res = replace_characters_in_dict_values(res, ',', ';', '|', ',')
-    return res['response']
-
-
-def summarize_clusters(final_summary):
-    # Implement logic to reduce redundancy and summarize common issues
-    summarized_output = ""
-    clusters = final_summary.split("### **Cluster")
-    for cluster in clusters:
-        if cluster.strip():
-            summarized_output += f"### **Cluster{cluster}\n"
-    return summarized_output
+    response = res['response']
+    
+    # Format the response as HTML
+    formatted_response = make_links_clickable(response)
+    formatted_response = response.replace("**" , "")
+    formatted_response = re.sub(r'\)\)' , ')' , formatted_response)
+    return formatted_response
 
 if __name__ == "__main__":
     now = datetime.now()
@@ -74,16 +82,17 @@ if __name__ == "__main__":
     # OpenAI Integration
     connector = OpenAIConnector()
     # Initialize an empty summary
-    current_summary = ""
     count = 0
     final_summary = ""
     grouped = df.groupby('dbscan_UMAP_BERT_euclidean23')
     # Process each chunk and update the summary
     for cluster_number, group in grouped:
-        #print(f"Group {cluster_number}: ", group)
+        '''if count == 3:
+            break'''
         current_summary = process_cluster(group, connector)
         print(f"Summary for Cluster {cluster_number}: ", current_summary)
         final_summary += current_summary + "\n"
+        count+=1
 
     print("\n################Response################\n")
     print(f"The response: {final_summary}")
@@ -104,7 +113,7 @@ if __name__ == "__main__":
         
         <h2>Visualizations</h2>
         
-        <h3>Number of Errors in Each Cluster</h3>
+        <h3>Number of Errors in Each Group</h3>
         <img src="data:image/png;base64,{bar_chart_base64}" alt="Bar Chart">
         <h3>Cluster Distribution</h3>
         <img src="data:image/png;base64,{pie_chart_base64}" alt="Pie Chart">
