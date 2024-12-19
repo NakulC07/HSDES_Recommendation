@@ -44,7 +44,8 @@ class HSDES_Extraction:
         except ServerError as e:
             print(f"Error: {e.reason}")
             print(f"Details: {e.details}")
-
+        except KeyError as e:
+            pass
 
     #Extracting Status Scope Summary
     def get_status_scope_summary(self,vallog):

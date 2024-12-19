@@ -53,7 +53,7 @@ session.mount('https://nga-prod.laas.icloud.intel.com', SslContextAdapter)     #
 token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
  
 #project_name = input("Enter the project name (e.g., 'nga_fv_gnr'): ")
-get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/nga_fv_gnr/api/Failure/Failures/30'
+get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/nga_fv_gnr/api/Failure/Failures/2'
 response = session.get(get_failure_details, headers={"Authorization": "Bearer " + token["access_token"]})
 #print(response.json())
 
