@@ -34,7 +34,7 @@ class SSLContextAdapter(HTTPAdapter):
  
 nga_app_reg_id = '2e75abe8-764a-4773-9433-d064c27eacbf'          # Insert Application Registration ID
 nga_app_reg_secret = 'Uix0KsdXU0Zzv3pN2hmPLHJ+Ti]V?v_i'  # Insert Application Registration Secret
-nga_project_name = 'nga_fv_gnr'           # Insert Project Name --> Ex: 'nclg_pve_sandbox'
+nga_project_name = 'nga_fv_gnrd'           # Insert Project Name --> Ex: 'nclg_pve_sandbox'
 app = ConfidentialClientApplication(nga_app_reg_id, nga_app_reg_secret,
                                     str("https://login.microsoftonline.com/intel.onmicrosoft.com"))     # Endpoint to get the Token at INTEL Azure Directory
  
@@ -53,7 +53,7 @@ session.mount('https://nga-prod.laas.icloud.intel.com', SslContextAdapter)     #
 token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
  
 #project_name = input("Enter the project name (e.g., 'nga_fv_gnr'): ")
-get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/nga_fv_gnr/api/Failure/Failures/2'
+get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/nga_fv_gnrd/api/Failure/Failures/30'
 response = session.get(get_failure_details, headers={"Authorization": "Bearer " + token["access_token"]})
 #print(response.json())
 
@@ -92,7 +92,7 @@ for record in data["Records"]:
         test_run_id = record['TestRunId']
         print("Test_Run_Id" , test_run_id)
         token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
-        get_testrunid_details = f'https://nga-prod.laas.icloud.intel.com/TestRun/nga_fv_gnr/api/TestRun/{test_run_id}'
+        get_testrunid_details = f'https://nga-prod.laas.icloud.intel.com/TestRun/nga_fv_gnrd/api/TestRun/{test_run_id}'
         response_test_run_Id = session.get(get_testrunid_details, headers={"Authorization": "Bearer " + token["access_token"]})
         info_test_run_Id = response_test_run_Id.json()
         group_dict = info_test_run_Id['TestGroupIdentifier']
@@ -100,7 +100,7 @@ for record in data["Records"]:
             if key == 'EntityId':
                 ID = group_dict[key]
                 print("Entitiy-ID ", ID)
-                get_group_details = f'https://nga-prod.laas.icloud.intel.com/Planning/nga_fv_gnr/api/TestGroup/{ID}'
+                get_group_details = f'https://nga-prod.laas.icloud.intel.com/Planning/nga_fv_gnrd/api/TestGroup/{ID}'
                 response_group = session.get(get_group_details, headers={"Authorization": "Bearer " + token["access_token"]})
                 group_info = response_group.json()
                 #print("Group_info" , group_info)
