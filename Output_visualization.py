@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load the Excel file
-file_path = './output (8)/output/modelling_output.xlsx'
-df = pd.read_excel(file_path, sheet_name='Clusters')
+file_path = './GNRD_Output.csv'
+df = pd.read_csv(file_path)
 
 # Extract relevant columns
-clusters = df['dbscan_UMAP_BERT_euclidean23']
-groups = df['Group']
+clusters = df['agglomerativeClustering_SpectralEmbedding_BERT8']
+groups = df['Group Name']
 
 # 2. Bar Chart of Cluster Sizes
-group_cluster_counts = df.groupby('Group')['dbscan_UMAP_BERT_euclidean23'].count()
+group_cluster_counts = df.groupby('Group Name')['agglomerativeClustering_SpectralEmbedding_BERT8'].count()
 
 # Create a mapping of groups to numbers
 group_to_number = {group: i for i, group in enumerate(group_cluster_counts.index, start=1)}

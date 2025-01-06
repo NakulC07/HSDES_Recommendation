@@ -17,6 +17,7 @@ def make_links_clickable(text):
     return url_pattern.sub(r'<a href="\1">\1</a>', text)
 
 def process_cluster(group, connector):
+    print(group)
     cluster_number = group['Base Sentence Cluster']
     output = group.to_string(index=False)
     if len(output) > 128000:
@@ -132,19 +133,18 @@ def generate_html_table(summaries):
 if __name__ == "__main__":
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
-    failures_df = pd.read_csv("Updated_failures.csv")
+    failures_df = pd.read_csv("Updated_failures_GNRD_Daily.csv")
     failures_df = failures_df.loc[:, ~failures_df.columns.str.contains('^Unnamed')]
-    failures_df = failures_df.head(10)
-    print(failures_df)
-    hang_error_df = pd.read_csv("Hang_Error_Clustering and Similarity hybrid.csv")
-    hang_errors = failures_df[(failures_df['hsdes_link'].notnull()) | (failures_df['axon_link'].notnull())]
+    hang_error_df = pd.read_csv("sentence_similarity_GNRD.csv")
+    hang_error_df = hang_error_df.loc[:, ~hang_error_df.columns.str.contains('^Unnamed')]
+    hang_errors = failures_df
     connector = OpenAIConnector()
     final_summary_list = []
     for index, row in hang_errors.iterrows():
         error_description = row['Errors']
         parts = error_description.split(' ')
         cleaned_parts = [part for part in parts if part != 'None']
-        error_description = ' '.join(cleaned_parts)
+        error_description = ''.join(cleaned_parts)
         top_entries = get_top_similar_entries(error_description, hang_error_df)
         for _, entry in top_entries.iterrows():
             entry_summary = process_cluster(entry, connector)
