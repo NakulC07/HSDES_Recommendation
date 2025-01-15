@@ -20,11 +20,13 @@ The entire workflow is divided into two parts:
 
 1.2. Extraction_Data.py: This script extracts error details from the failures identified in the first script.
 
-1.3. Data Clustering and Similarity Analysis: The extracted details are used to perform clustering and sentence similarity analysis. The output of these analyses is then consolidated to form our database.
+1.3. Data Clustering and Similarity Analysis on MLaaS cloud: On the MLaaS cloud we perform two operations. 
+      1.3.1. Clustering, under "Generate New Models" choose, "Grouping textual data using NLP technique without pre-label input", upload the file from 1.2 and choose "error" column.
+      1.3.2. Similarity, under "Use Pre-defined Models" choose, "Measure conceptual likeness between the texts", upload the file from 1.2 and choose "Failure Name" as index, "Error" as input.
+1.4. Run the Combine.py (To Do) code which gives sentence_similarity_GNRD.csv as output which is our database.
+1.5. HSDES_Extraction.py: This script analyzes the HSD details attached to the failures and generates a report for the users.
 
-1.4. HSDES_Extraction.py: This script analyzes the HSD details attached to the failures and generates a report for the users.
-
-1.5. Output_Visualization.py: This script visualizes the number of failures in each category within the database.
+1.6. Output_Visualization.py: This script visualizes the number of failures in each category within the database.
 
 The above steps are triggered once a month to update the database with new failures, their types, and any changes visible in the visualization.
 
