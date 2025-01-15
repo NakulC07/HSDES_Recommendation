@@ -15,9 +15,9 @@ In this project, we are using Generative AI to streamline and automate the recom
 
 ### 1. Creating a Database of Errors, Signatures, HSDES Links, and Axon Links
 
-      1.1. NGA_Extraction.py: This script is used to extract NGA details for a span of more than 30 days.
+      1.1. NGA_Extraction_DB.py: This script is used to extract NGA details for a span of more than 30 days.
 
-      1.2. Extraction_Data.py: This script extracts error details from the failures identified in the first script.
+      1.2. Extraction_Data_DB.py: This script extracts error details from the failures identified in the first script.
 
       1.3. Data Clustering and Similarity Analysis on MLaaS Cloud: On the MLaaS cloud, we perform two operations:
       
