@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load the Excel file
-file_path = 'C:/NLP_Project_1/GNRD/GNRD_Output.csv'
+file_path = './GNRD/GNRD_Output.csv'
 df = pd.read_csv(file_path)
 
 # Extract relevant columns
@@ -26,7 +26,7 @@ plt.ylabel('Number of Errors')
 plt.legend(title='Group Legend', labels=[f"{num}: {group}" for group, num in group_to_number.items()], loc='upper left', bbox_to_anchor=(1, 1), fontsize='small')
 
 plt.tight_layout()  # Adjust layout
-plt.savefig('C:/NLP_Project_1/GNRD/bar_chart.png', bbox_inches='tight')  # Save to disk with tight bounding box
+plt.savefig('./GNRD/bar_chart.png', bbox_inches='tight')  # Save to disk with tight bounding box
 #plt.show()
 plt.close()
 
@@ -39,6 +39,6 @@ plt.title('Cluster Distribution')
 plt.legend(title='Group Legend', labels=[f"{num}: {group}" for group, num in group_to_number.items()], loc='upper left', bbox_to_anchor=(1, 1), fontsize='small')
 
 plt.tight_layout()  # Adjust layout
-plt.savefig('C:/NLP_Project_1/GNRD/pie_chart.png', bbox_inches='tight')  # Save to disk with tight bounding box
+plt.savefig('./GNRD/pie_chart.png', bbox_inches='tight')  # Save to disk with tight bounding box
 #plt.show()
 plt.close()

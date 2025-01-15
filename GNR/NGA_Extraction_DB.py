@@ -145,7 +145,7 @@ df = pd.DataFrame(extracted_data)
 print(df)
 # Display the DataFrame
 #print(df.to_string(index=False))
-df.to_csv("./NGA_Extracted_DB.csv" , index = False)
+df.to_csv("./GNR/NGA_Extracted_DB.csv" , index = False)
 output = df.to_string(index=False)
 
 

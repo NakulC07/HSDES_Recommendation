@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load the Excel file
-file_path = "./modelling_output.xlsx"
+file_path = "./GNR/modelling_output.xlsx"
 xls = pd.ExcelFile(file_path , engine = 'openpyxl')
 
 # Load the sheets into DataFrames

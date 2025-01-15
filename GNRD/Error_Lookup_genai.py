@@ -133,9 +133,9 @@ def generate_html_table(summaries):
 if __name__ == "__main__":
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
-    failures_df = pd.read_csv("Updated_failures_GNRD_Daily.csv")
+    failures_df = pd.read_csv("./GNRD/Updated_failures_GNRD_Daily.csv")
     failures_df = failures_df.loc[:, ~failures_df.columns.str.contains('^Unnamed')]
-    hang_error_df = pd.read_csv("sentence_similarity_GNRD.csv")
+    hang_error_df = pd.read_csv("./GNRD/sentence_similarity_GNRD.csv")
     hang_error_df = hang_error_df.loc[:, ~hang_error_df.columns.str.contains('^Unnamed')]
     hang_errors = failures_df
     connector = OpenAIConnector()

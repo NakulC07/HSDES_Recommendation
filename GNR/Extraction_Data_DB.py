@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     #Reading the source file extracted from NGA
 
-    df = pd.read_csv("./NGA_Extracted_DB.csv")
+    df = pd.read_csv("./GNR/NGA_Extracted_DB.csv")
     print(df.head())
 
     hsd = HSDES_Extraction()    
@@ -167,5 +167,5 @@ if __name__ == "__main__":
     df_hsdes = pd.DataFrame(hsdes_summary_list)
     filtered_df = df[df['Debug Snapshot'].notna()]
     df_concat = pd.concat([filtered_df.reset_index(drop=True), df_hsdes.reset_index(drop=True), df_msgs.reset_index(drop=True)], axis=1)
-    df_concat.to_csv("./Updated_failures_GNR.csv", index=False)
+    df_concat.to_csv("./GNR/Updated_failures_GNR.csv", index=False)
     print("Conversion done!!")

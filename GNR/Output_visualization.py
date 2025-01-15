@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load the Excel file
-file_path = 'C:/NLP_Project_1/GNR/modelling_output.xlsx'
+file_path = './GNR/modelling_output.xlsx'
 df = pd.read_excel(file_path , sheet_name="Clusters" , engine="openpyxl")
 
 # Extract relevant columns
@@ -26,7 +26,7 @@ plt.ylabel('Number of Errors')
 plt.legend(title='Group Legend', labels=[f"{num}: {group}" for group, num in group_to_number.items()], loc='upper left', bbox_to_anchor=(1, 1), fontsize='small')
 
 plt.tight_layout()  # Adjust layout
-plt.savefig('C:/NLP_Project_1/GNR/bar_chart.png', bbox_inches='tight')  # Save to disk with tight bounding box
+plt.savefig('./GNR/bar_chart.png', bbox_inches='tight')  # Save to disk with tight bounding box
 #plt.show()
 plt.close()
 
@@ -39,6 +39,6 @@ plt.title('Cluster Distribution')
 plt.legend(title='Group Legend', labels=[f"{num}: {group}" for group, num in group_to_number.items()], loc='upper left', bbox_to_anchor=(1, 1), fontsize='small')
 
 plt.tight_layout()  # Adjust layout
-plt.savefig('C:/NLP_Project_1/GNR/pie_chart.png', bbox_inches='tight')  # Save to disk with tight bounding box
+plt.savefig('./GNR/pie_chart.png', bbox_inches='tight')  # Save to disk with tight bounding box
 #plt.show()
 plt.close()

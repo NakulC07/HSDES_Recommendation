@@ -197,7 +197,7 @@ def process_data_in_chunks(df, connector, chunk_size=10):
 if __name__ == "__main__":
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
-    df = pd.read_csv("./Updated_failures_GNR.csv")
+    df = pd.read_csv("./GNR/Updated_failures_GNR.csv")
     hsdes_links = df['hsdes_link']
     username = os.environ.get("USERNAME", "ginaburt")
     user = input("Give me an IDSD (user) go get info from HSD system [%s]: " % (username,))
