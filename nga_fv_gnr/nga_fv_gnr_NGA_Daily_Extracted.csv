@@ -1,0 +1,4 @@
+Failure Name,Station Name,Stage,Debug Snapshot,Group Name,Failure_Id,SightingId,AxonSV Record Viewer,Signatures
+b73f922a,jf04wvaw5319,Test,,MMX,b73f922a-f82a-42b6-8973-efa452bc7c4b,NA,,[]
+1a70120d,jf04wvaw5381,Test,b107214d-27eb-4f3a-9641-44feaa8259dd,MMX,1a70120d-9015-4af9-8402-59c0194ffab0,NA,https://axonsv.app.intel.com/apps/record-viewer/b107214d-27eb-4f3a-9641-44feaa8259dd,"['HW', 'HW.CFG.ERR', 'HW.CORR']"
+d848c432,jf04wvaw5318,Test,fcc65253-5453-4de1-b1c4-8c5fc9009f97,MMX,d848c432-408f-413a-b2ae-cbbdaf29a82e,NA,https://axonsv.app.intel.com/apps/record-viewer/fcc65253-5453-4de1-b1c4-8c5fc9009f97,"['HW.CORR', 'HW.MCE.IMC', 'HW', 'HW.ERR']"

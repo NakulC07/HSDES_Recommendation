@@ -1,0 +1,12 @@
+Failure Name,Station Name,Stage,Debug Snapshot,Group Name,Failure_Id,SightingId,AxonSV Record Viewer,Signatures
+480c8c5e,ba05wvaw0266,PreTest,,CI_GNR_D_DF,480c8c5e-169d-4188-a718-0d09196ade39,NA,,[]
+40db77bd,ba05wvaw0290,PreTest,,CI_GNR_D_DF,40db77bd-071a-4649-935d-287b08aa7a26,NA,,[]
+28b5cb84,ba05wvaw0286,PreTest,,CI_GNR_D_DF,28b5cb84-09e2-4717-9d75-2a99b120e911,NA,,[]
+5d442c9b,ba05wvaw0236,PreTest,,CI_GNR_D_DF,5d442c9b-df33-4234-a9db-10aed2f37adc,NA,,[]
+22be0f79,ba05wvaw0240,PreTest,,CI_GNR_D_DF,22be0f79-54b7-48ea-b0d8-490fe953860f,NA,,[]
+8df6b31a,ba05wvaw0242,PreTest,,CI_GNR_D_DF,8df6b31a-1dd9-4f96-a429-e18e2e412fa3,NA,,[]
+35612345,ba05wvaw0276,PreBoot,,CI_GNR_D_DF,35612345-0a61-4cf3-877f-8f6ca3c10648,NA,,[]
+b04a9c1c,ba05wvaw0250,Test,14a96b59-d2bc-4293-ab46-7b0af92b58cb,Memory,b04a9c1c-6c93-4774-86aa-3626bf4ec8c7,NA,https://axonsv.app.intel.com/apps/record-viewer/14a96b59-d2bc-4293-ab46-7b0af92b58cb,"['HW.CORR', 'HW.MCE.IMC', 'HW', 'HW.ERR', 'HW.MCE']"
+a324781f,ba05wvaw0250,Test,a8b5e612-da78-4c40-986e-bb050810d98f,PM,a324781f-af0a-4956-bd64-099b592c5ee2,NA,https://axonsv.app.intel.com/apps/record-viewer/a8b5e612-da78-4c40-986e-bb050810d98f,"['HW.CORR', 'HW', 'HW.ERR']"
+e080b834,ba05wvaw0287,Test,9f7fc624-6619-4d09-8022-80e9b3ca6d7d,Concurrency,e080b834-dc93-4ce4-81d7-385f1b75830c,NA,https://axonsv.app.intel.com/apps/record-viewer/9f7fc624-6619-4d09-8022-80e9b3ca6d7d,"['HW.CORR', 'HW', 'HW.ERR']"
+81d045d3,ba05wvaw0248,PreTest,,CI_GNR_D_DF,81d045d3-86d5-44ef-a832-9cc1749ca555,NA,,[]

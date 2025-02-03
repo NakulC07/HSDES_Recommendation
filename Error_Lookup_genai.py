@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import base64
 import re
@@ -5,25 +6,21 @@ from datetime import datetime
 from openai_connector import OpenAIConnector
 import send_email_connector as email_connector
 
-# Function to convert image file to base64 string
 def image_to_base64(file_path):
     with open(file_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 def make_links_clickable(text):
-    # Regular expression to find URLs
     url_pattern = re.compile(r'(http[s]?://\S+)')
-    # Replace URLs with clickable links
     return url_pattern.sub(r'<a href="\1">\1</a>', text)
 
 def process_cluster(group, connector):
-    print(group)
     cluster_number = group['Base Sentence Cluster']
     output = group.to_string(index=False)
     if len(output) > 128000:
         output = output[:128000]
     prompt = f"""
-    Hi, this is the failure report of the last 15/30 days in the GNR-D project. For now, I am providing you with similar hang occurrences with some initial insight about the signature.
+    Hi, this is the failure report of the last 15/30 days in the project. For now, I am providing you with similar hang occurrences with some initial insight about the signature.
     The following data contains details about unique failures processed with a clustering algorithm. Each cluster is formed based on the failure signature similarity. The 'Base sentence cluster' column indicates the assigned cluster for each failure. Please provide a detailed summary for each cluster in the following HTML format:
     <div>
         <strong>Failure Type {cluster_number} - Cluster {cluster_number}</strong>
@@ -60,20 +57,16 @@ def get_top_similar_entries(hang_error, hang_error_df):
 def consolidate_summaries(summaries):
     consolidated = {}
     for summary in summaries:
-        # Extract Failure Type and Cluster from the summary
         failure_type = re.search(r'Failure Type (\d+)', summary).group(1)
         cluster = re.search(r'Cluster (\d+)', summary).group(1)
         key = (failure_type, cluster)
         if key not in consolidated:
             consolidated[key] = []
         consolidated[key].append(summary)
-    
-    # Combine summaries for each unique Failure Type and Cluster
     consolidated_summaries = []
     for key, summaries in consolidated.items():
         combined_summary = "\n".join(summaries)
         consolidated_summaries.append(combined_summary)
-    
     return consolidated_summaries
 
 def generate_html_table(summaries):
@@ -94,23 +87,16 @@ def generate_html_table(summaries):
             </tr>
     """
     for summary in summaries:
-        # Extract data from summary using regex or HTML parsing
         failure_type = re.search(r'Failure Type (\d+)', summary).group(1)
         cluster = re.search(r'Cluster (\d+)', summary).group(1)
         error_descriptions = re.search(r'<li><strong>Sentences in this cluster primarily involve errors regarding:</strong> (.*?)</li>', summary).group(1)
         typical_errors = re.search(r'<li><strong>Typical errors describe situations where:</strong> (.*?)</li>', summary).group(1)
         issues_tied_to = re.search(r'<li><strong>The issues are repeatedly tied to:</strong> (.*?)</li>', summary).group(1)
-        
-        # Extract multiple links
         hsdes_links = re.findall(r'<li><strong>Hsdes link:</strong> <a href="(.*?)">', summary)
         axon_links = re.findall(r'<li><strong>Axon Link:</strong> <a href="(.*?)">', summary)
-        
-        # Format links as a list
         hsdes_links_formatted = ', '.join([f'<a href="{link}">HSDES Link</a>' for link in hsdes_links])
         axon_links_formatted = ', '.join([f'<a href="{link}">Axon Link</a>' for link in axon_links])
-        
         group_details = re.search(r'<li><strong>Group Details:</strong> (.*?)</li>', summary).group(1)
-
         html += f"""
             <tr>
                 <td>{failure_type}</td>
@@ -130,16 +116,25 @@ def generate_html_table(summaries):
     """
     return html
 
-if __name__ == "__main__":
+def process_project(project_name, input_dir, output_dir):
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
-    failures_df = pd.read_csv("./GNR/Updated_failures_GNR_Daily.csv")
+    input_file = os.path.join(input_dir, f"Updated_failures_{project_name}.csv")
+    sentence_similarity_file = os.path.join(input_dir, f"Combine_cluster_similarity.csv")
+
+    if not os.path.exists(input_file) or not os.path.exists(sentence_similarity_file):
+        print(f"Required files for project '{project_name}' do not exist in '{input_dir}'.")
+        return
+
+    failures_df = pd.read_csv(input_file)
     failures_df = failures_df.loc[:, ~failures_df.columns.str.contains('^Unnamed')]
-    hang_error_df = pd.read_csv("./GNR/Hang_Error_Clustering_ and Similarity.csv")
+    hang_error_df = pd.read_csv(sentence_similarity_file)
     hang_error_df = hang_error_df.loc[:, ~hang_error_df.columns.str.contains('^Unnamed')]
     hang_errors = failures_df
+
     connector = OpenAIConnector()
     final_summary_list = []
+
     for index, row in hang_errors.iterrows():
         error_description = row['Errors']
         parts = error_description.split(' ')
@@ -149,22 +144,22 @@ if __name__ == "__main__":
         for _, entry in top_entries.iterrows():
             entry_summary = process_cluster(entry, connector)
             final_summary_list.append(entry_summary)
-    
-    # Consolidate summaries
+
     consolidated_summaries = consolidate_summaries(final_summary_list)
     final_summary_df = pd.DataFrame(consolidated_summaries, columns=['Summary'])
-
-    # Generate HTML table
     html_table = generate_html_table(consolidated_summaries)
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     email_addresses = input("Please provide one or more comma-separated email recipients: ")
     bar_chart_base64 = image_to_base64('bar_chart.png')
-    subject_text = f"AI generated Failure summary with auto Triage - GNR-D {Date}"
+    subject_text = f"AI generated Failure summary with auto Triage - {project_name} {Date}"
     body_text = f"""
     <html>
     <body>
         <p>Dear Reader,</p>
-        <p>We are pleased to share the AI-generated summary of the failure details from the GNR-D project. Please find the detailed analysis below:</p>
+        <p>We are pleased to share the AI-generated summary of the failure details from the {project_name} project. Please find the detailed analysis below:</p>
         <h2>Visualizations</h2>
         <h3>Number of Errors in Each Group</h3>
         <img src="data:image/png;base64,{bar_chart_base64}" alt="Bar Chart">
@@ -184,3 +179,4 @@ if __name__ == "__main__":
         bodyText=None,
         htmlText=body_text,
     )
+    print(f"Data for {project_name} processed and email sent.")
