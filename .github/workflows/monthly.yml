@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      HTTPS_PROXY: http://proxy-dmz.intel.com:912
-      HTTP_PROXY: http://proxy-dmz.intel.com:912
-      no_proxy: localhost,intel.com,127.0.0.1
       PIP_INDEX_URL: https://intelpypi.intel.com/pythonsv/production
       PIP_TRUSTED_HOST: intelpypi.intel.com
 
@@ -22,23 +19,51 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v2
+        env:
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY_URL }}
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY_URL }}
+          NO_PROXY: ${{ secrets.NO_PROXY_LIST }}
 
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.13.1'  # Specify your Python version
+        env:
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY_URL }}
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY_URL }}
+          NO_PROXY: ${{ secrets.NO_PROXY_LIST }}
 
       - name: Install dependencies
         run: pip install -r requirements.txt  # Ensure you have a requirements.txt file
+        env:
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY_URL }}
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY_URL }}
+          NO_PROXY: ${{ secrets.NO_PROXY_LIST }}
 
       - name: Run NGA_DB_runner.py
         run: python NGA_DB_runner.py
+        env:
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY_URL }}
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY_URL }}
+          NO_PROXY: ${{ secrets.NO_PROXY_LIST }}
 
       - name: Run Extraction_DB_runner.py
         run: python Extraction_DB_runner.py
+        env:
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY_URL }}
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY_URL }}
+          NO_PROXY: ${{ secrets.NO_PROXY_LIST }}
 
       - name: Run HSDES_Extraction_runner.py
         run: python HSDES_Extraction_runner.py
+        env:
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY_URL }}
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY_URL }}
+          NO_PROXY: ${{ secrets.NO_PROXY_LIST }}
 
       - name: Run visualization_runner.py
         run: python visualization_runner.py
+        env:
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY_URL }}
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY_URL }}
+          NO_PROXY: ${{ secrets.NO_PROXY_LIST }}
