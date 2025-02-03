@@ -9,3 +9,4 @@ httpx
 matplotlib
 seaborn
 certifi
+requests_kerberos
