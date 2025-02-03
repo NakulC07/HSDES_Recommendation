@@ -26,6 +26,11 @@ jobs:
         run: |
           pip install -r requirements.txt  # Ensure you have a requirements.txt file
 
+      - name: Configure Proxy
+        run: |
+          export http_proxy=http://proxy-dmz.intel.com:8080
+          export https_proxy=http://proxy-dmz.intel.com:8080
+
       - name: Run NGA_DB_runner.py
         run: python NGA_DB_runner.py
 
