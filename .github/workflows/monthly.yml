@@ -22,14 +22,17 @@ jobs:
         with:
           python-version: '3.13.1'  # Specify your Python version
 
+      - name: Configure Environment Variables
+        run: |
+          export HTTPS_PROXY=http://proxy-dmz.intel.com:912
+          export HTTP_PROXY=http://proxy-dmz.intel.com:912
+          export no_proxy=localhost,intel.com,127.0.0.1
+          export PIP_INDEX_URL=https://intelpypi.intel.com/pythonsv/production
+          export PIP_TRUSTED_HOST=intelpypi.intel.com
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt  # Ensure you have a requirements.txt file
-
-      - name: Configure Proxy
-        run: |
-          export http_proxy=http://proxy-dmz.intel.com:8080
-          export https_proxy=http://proxy-dmz.intel.com:8080
 
       - name: Run NGA_DB_runner.py
         run: python NGA_DB_runner.py
