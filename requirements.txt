@@ -1,6 +1,12 @@
-pyaxon
-svtools
-pypi-json
 pandas
-regex
+openai
 requests
+urllib3
+msal
+pyaxon
+python-dotenv
+httpx
+matplotlib
+seaborn
+certifi
+requests-kerberos
