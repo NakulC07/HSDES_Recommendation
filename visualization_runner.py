@@ -3,18 +3,16 @@ from Output_visualization import generate_visualizations
 # List of projects with their respective file paths and column names
 projects = {
     'nga_fv_gnr': {
-        'file_path': './nga_fv_gnr/Combine_cluster_similarity.csv',
-        'sheet_name': 'Clusters',
+        'file_path': './nga_fv_gnr/nga_fv_gnr_Clustering_Output.csv',
         'cluster_col': 'dbscan_UMAP_BERT_euclidean23',
         'group_col': 'Group',
-        'output_dir': './GNR'
+        'output_dir': './nga_fv_gnr'
     },
-    'another_project': {
-        'file_path': './AnotherProject/modelling_output.xlsx',
-        'sheet_name': 'Clusters',
-        'cluster_col': 'another_cluster_column',
-        'group_col': 'another_group_column',
-        'output_dir': './AnotherProject'
+    'nga_fv_gnrd': {
+        'file_path': './nga_fv_gnrd/nga_fv_gnrd_Clustering_Ouptut.csv',
+        'cluster_col': 'agglomerativeClustering_SpectralEmbedding_BERT8',
+        'group_col': 'Group',
+        'output_dir': './nga_fv_gnrd'
     }
 }
 
