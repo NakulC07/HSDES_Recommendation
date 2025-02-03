@@ -9,13 +9,6 @@ jobs:
   run-monthly-scripts:
     runs-on: ubuntu-latest
 
-    env:
-      HTTPS_PROXY: http://proxy-dmz.intel.com:912
-      HTTP_PROXY: http://proxy-dmz.intel.com:912
-      no_proxy: localhost,intel.com,127.0.0.1
-      PIP_INDEX_URL: https://intelpypi.intel.com/pythonsv/production
-      PIP_TRUSTED_HOST: intelpypi.intel.com
-
     steps:
       - name: Install system dependencies
         run: sudo apt-get install -y krb5-user krb5-config libkrb5-dev
