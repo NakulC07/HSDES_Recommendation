@@ -3,7 +3,7 @@ openai
 requests
 urllib3
 msal
-pyaxon
+#pyaxon
 python-dotenv
 httpx
 matplotlib
