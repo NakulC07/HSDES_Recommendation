@@ -1,6 +1,6 @@
 # First Script: extract_project.py
 from NGA_Extraction import extract_data_for_project
-
+import os
 
 #proxy
 os.environ["OMP_NUM_THREADS"] = "1"
