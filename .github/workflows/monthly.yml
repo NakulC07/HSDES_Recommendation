@@ -10,26 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+    
+       - name: Install system dependencies
+        run: sudo apt-get install -y krb5-user krb5-config libkrb5-dev
+        
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.13.1'  # Specify your Python version
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.13.1'  # Specify your Python version
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt  # Ensure you have a requirements.txt file
 
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt  # Ensure you have a requirements.txt file
+      - name: Run NGA_DB_runner.py
+        run: python NGA_DB_runner.py
 
-    - name: Run NGA_DB_runner.py
-      run: python NGA_DB_runner.py
+      - name: Run Extraction_DB_runner.py
+        run: python Extraction_DB_runner.py
 
-    - name: Run Extraction_DB_runner.py
-      run: python Extraction_DB_runner.py
+      - name: Run HSDES_Extraction_runner.py
+        run: python HSDES_Extraction_runner.py
 
-    - name: Run HSDES_Extraction_runner.py
-      run: python HSDES_Extraction_runner.py
-
-    - name: Run visualization_runner.py
-      run: python visualization_runner.py
+      - name: Run visualization_runner.py
+        run: python visualization_runner.py
