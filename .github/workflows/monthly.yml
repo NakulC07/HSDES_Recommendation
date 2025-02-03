@@ -1,10 +1,10 @@
 name: Monthly Tasks
-
+ 
 on:
   schedule:
     - cron: '0 0 1 * *'  # Runs on the first day of every month at midnight UTC
   workflow_dispatch:
-
+ 
 jobs:
   run-monthly-scripts:
     runs-on: ubuntu-latest
@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Install system dependencies
         run: sudo apt-get install -y krb5-user krb5-config libkrb5-dev
-
+ 
       - name: Checkout repository
         uses: actions/checkout@v2
 
