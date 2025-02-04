@@ -1,6 +1,12 @@
 import os
 from NGA_Extraction_DB import extract_data_for_project
 
+#proxy
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["http_proxy"] = "http://proxy-chain.intel.com:912"
+os.environ["https_proxy"] = "http://proxy-chain.intel.com:912"
+
+
 # Configuration
 app_reg_id = '2e75abe8-764a-4773-9433-d064c27eacbf'
 app_reg_secret = 'Uix0KsdXU0Zzv3pN2hmPLHJ+Ti]V?v_i'
