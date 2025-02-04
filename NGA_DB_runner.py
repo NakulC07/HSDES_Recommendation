@@ -5,7 +5,7 @@ from NGA_Extraction_DB import extract_data_for_project
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["http_proxy"] = "http://proxy-chain.intel.com:912"
 os.environ["https_proxy"] = "http://proxy-chain.intel.com:912"
-os.environ["NO_PROXY"] = "login.microsoftonline.com"
+os.environ["NO_PROXY"] = "login.microsoftonline.com,nga-prod.laas.icloud.intel.com"
 
 # Configuration
 app_reg_id = '2e75abe8-764a-4773-9433-d064c27eacbf'
