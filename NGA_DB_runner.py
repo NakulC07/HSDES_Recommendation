@@ -3,8 +3,8 @@ from NGA_Extraction_DB import extract_data_for_project
 
 #proxy
 os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["http_proxy"] = "http://proxy-chain.intel.com:912"
-os.environ["https_proxy"] = "http://proxy-chain.intel.com:912"
+os.environ["http_proxy"] = "http://proxy-dmz.intel.com:912"
+os.environ["https_proxy"] = "http://proxy-dmz.intel.com:912"
 
 
 # Configuration
