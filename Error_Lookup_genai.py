@@ -5,6 +5,8 @@ import re
 from datetime import datetime
 from openai_connector import OpenAIConnector
 import send_email_connector as email_connector
+from HSDES_Extraction import HsdConnector, replace_characters_in_dict_values
+
 
 def image_to_base64(file_path):
     with open(file_path, "rb") as image_file:
@@ -14,13 +16,13 @@ def make_links_clickable(text):
     url_pattern = re.compile(r'(http[s]?://\S+)')
     return url_pattern.sub(r'<a href="\1">\1</a>', text)
 
-def process_cluster(group, connector):
+def process_cluster(group, connector,hsd_summary):
     cluster_number = group['Base Sentence Cluster']
     output = group.to_string(index=False)
     if len(output) > 128000:
         output = output[:128000]
     prompt = f"""
-    Hi, this is the failure report of the last 15/30 days in the project. For now, I am providing you with similar hang occurrences with some initial insight about the signature.
+    Hi, this is the failure report of the last 2 days in the project. For now, I am providing you with similar hang occurrences with some initial insight about the signature.
     The following data contains details about unique failures processed with a clustering algorithm. Each cluster is formed based on the failure signature similarity. The 'Base sentence cluster' column indicates the assigned cluster for each failure. Please provide a detailed summary for each cluster in the following HTML format:
     <div>
         <strong>Failure Type {cluster_number} - Cluster {cluster_number}</strong>
@@ -29,9 +31,9 @@ def process_cluster(group, connector):
             <li><strong>Descriptions highlight multiple systems involved; often centered around:</strong> [Summary of systems and errors]</li>
             <li><strong>Typical errors describe situations where:</strong> [Detailed description of typical errors]</li>
             <li><strong>The issues are repeatedly tied to:</strong> [Common causes or patterns]</li>
-            <li><strong>Hsdes link:</strong> Please list each link completely with a description {group[8]}, e.g., "HSDES Link for PCIe Issue"</li>
-            <li><strong>Axon Link:</strong> Please list each link completely with a description {group[9]}, e.g., "Axon Link for PCIe Issue"</li>
-            <li><strong>Group Details:</strong> [Highlight different Group]</li>
+            <li><strong>Hsdes link:</strong> Please list each link completely with a description {group[-2]}, e.g., "HSDES Link for PCIe Issue"</li>
+            <li><strong>Axon Link:</strong> Please list each link completely with a description {group[-1]}, e.g., "Axon Link for PCIe Issue"</li>
+            <li><strong>HSDES Summary:</strong> {hsd_summary}</li>
         </ul>
     </div>
     Here is the data for the current cluster:
@@ -57,7 +59,10 @@ def get_top_similar_entries(hang_error, hang_error_df):
 def consolidate_summaries(summaries):
     consolidated = {}
     for summary in summaries:
-        failure_type = re.search(r'Failure Type (\d+)', summary).group(1)
+        failure_type = re.search(r'Failure Type (\d+)', summary)
+        if not failure_type:
+            continue
+        failure_type = failure_type.group(1)
         cluster = re.search(r'Cluster (\d+)', summary).group(1)
         key = (failure_type, cluster)
         if key not in consolidated:
@@ -73,7 +78,7 @@ def generate_html_table(summaries):
     html = """
     <html>
     <body>
-        <h2>Summary of Failure Details</h2>
+        <h2>Summary of Daily Failure Details</h2>
         <table border="1" style="width:100%; border-collapse: collapse; text-align: left;">
             <tr>
                 <th>Failure Type</th>
@@ -83,7 +88,7 @@ def generate_html_table(summaries):
                 <th>Issues Tied To</th>
                 <th>HSDES Links</th>
                 <th>Axon Links</th>
-                <th>Group Details</th>
+                <th>HSDES Details</th>
             </tr>
     """
     for summary in summaries:
@@ -96,7 +101,8 @@ def generate_html_table(summaries):
         axon_links = re.findall(r'<li><strong>Axon Link:</strong> <a href="(.*?)">', summary)
         hsdes_links_formatted = ', '.join([f'<a href="{link}">HSDES Link</a>' for link in hsdes_links])
         axon_links_formatted = ', '.join([f'<a href="{link}">Axon Link</a>' for link in axon_links])
-        group_details = re.search(r'<li><strong>Group Details:</strong> (.*?)</li>', summary).group(1)
+        group_details_match = re.search(r'<li><strong>Group Details:</strong> (.*?)</li>', summary)
+        hsdes_details = group_details_match.group(1) if group_details_match else "N/A"
         html += f"""
             <tr>
                 <td>{failure_type}</td>
@@ -106,7 +112,7 @@ def generate_html_table(summaries):
                 <td>{issues_tied_to}</td>
                 <td>{hsdes_links_formatted}</td>
                 <td>{axon_links_formatted}</td>
-                <td>{group_details}</td>
+                <td>{hsdes_details}</td>
             </tr>
         """
     html += """
@@ -119,9 +125,9 @@ def generate_html_table(summaries):
 def process_project(project_name, input_dir, output_dir):
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
-    input_file = os.path.join(input_dir, f"Updated_failures_{project_name}.csv")
+    input_file = os.path.join(input_dir, f"Updated_failures_{project_name}_Daily.csv")
     sentence_similarity_file = os.path.join(input_dir, f"Combine_cluster_similarity.csv")
-
+    hsd_connector = HsdConnector()
     if not os.path.exists(input_file) or not os.path.exists(sentence_similarity_file):
         print(f"Required files for project '{project_name}' do not exist in '{input_dir}'.")
         return
@@ -137,12 +143,24 @@ def process_project(project_name, input_dir, output_dir):
 
     for index, row in hang_errors.iterrows():
         error_description = row['Errors']
+        
+        hsdes_link = row.get('hsdes_link', None)
+        if isinstance(hsdes_link , str):
+        
+            val = hsdes_link.split('/')
+            hsd_id = val[6]
+            hsd_data = hsd_connector.get_hsd(hsd_id)
+            hsd_summary = f"HSDES Summary for {hsd_id}: {hsd_data}"
+        
+        else:
+            hsd_summary = f"Generated summary based on error description: {error_description}"
+        
         parts = error_description.split(' ')
         cleaned_parts = [part for part in parts if part != 'None']
         error_description = ''.join(cleaned_parts)
         top_entries = get_top_similar_entries(error_description, hang_error_df)
         for _, entry in top_entries.iterrows():
-            entry_summary = process_cluster(entry, connector)
+            entry_summary = process_cluster(entry, connector , hsd_summary)
             final_summary_list.append(entry_summary)
 
     consolidated_summaries = consolidate_summaries(final_summary_list)
@@ -152,8 +170,8 @@ def process_project(project_name, input_dir, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    email_addresses = input("Please provide one or more comma-separated email recipients: ")
-    bar_chart_base64 = image_to_base64('bar_chart.png')
+    email_addresses = "nakul.choudhari@intel.com"#input("Please provide one or more comma-separated email recipients: ")
+    bar_chart_base64 = image_to_base64(f'./{input_dir}/bar_chart.png')
     subject_text = f"AI generated Failure summary with auto Triage - {project_name} {Date}"
     body_text = f"""
     <html>
@@ -164,9 +182,7 @@ def process_project(project_name, input_dir, output_dir):
         <h3>Number of Errors in Each Group</h3>
         <img src="data:image/png;base64,{bar_chart_base64}" alt="Bar Chart">
         {html_table}
-        <ul>
-            {''.join(f'<li>{summary}</li>' for summary in final_summary_df['Summary'])}
-        </ul>
+        
         <p>Thank you for your attention. Please feel free to reach out if you have any questions or need further assistance.</p>
         <p>Best Regards,<br>Nakul Choudhari<br>Intel Corporation</p>
     </body>
