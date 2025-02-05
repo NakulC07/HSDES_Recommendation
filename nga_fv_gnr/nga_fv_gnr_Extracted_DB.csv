@@ -1,20 +1,8 @@
 Failure Name,Station Name,Stage,Debug Snapshot,Group Name,Failure_Id,SightingId,AxonSV Record Viewer,Signatures
-332ae61c,ba05wvaw0163,PreBoot,,,332ae61c-d3fe-409e-8d84-58a96941127a,NA,,[]
-fc9078b3,ba05wvaw0141,PreBoot,,,fc9078b3-2000-4a07-a2a6-a40524dc7bab,NA,,[]
-efef17eb,ba05wvaw0021,PreBoot,,,efef17eb-f329-4017-abce-fd35c8c8a48f,NA,,[]
-b5481004,ba05wvaw0118,RebootStation,d1209e57-ff15-4243-a7ef-5dee364db55b,,b5481004-d342-4119-b97a-6d7e01c8c3ee,NA,https://axonsv.app.intel.com/apps/record-viewer/d1209e57-ff15-4243-a7ef-5dee364db55b,"['SW.FW', 'HW']"
-5fcc12e9,jf04wvaw5381,PreTest,,,5fcc12e9-fa7e-4cf3-96f0-030ee92a4f20,14024191829,,[]
-51513291,jf04wvaw5146,PreBoot,,,51513291-57c4-48a9-a94d-da8ce113314a,NA,,[]
-68a58a9c,jf04wvaw5028,Test,fc74d61a-adf1-42ea-9e80-c183798d825a,,68a58a9c-e0ad-4f9a-87f4-ab42f6b14cc5,14024172853,https://axonsv.app.intel.com/apps/record-viewer/fc74d61a-adf1-42ea-9e80-c183798d825a,"['HW', 'HW.ERR', 'HW.CORR']"
-742e87b2,jf04wvaw5146,PreBoot,,MMX,742e87b2-393f-4658-94d9-48f3be00a9e0,NA,,[]
-d7e48c7a,jf04wvaw5356,PreTest,,MMX,d7e48c7a-8da3-4738-bbb4-fe4b18b498a3,14024191970,,[]
-2cd5e0c9,jf04wvaw5381,Test,,,2cd5e0c9-59d0-4eb0-97dd-aa4e12032753,14024172853,,[]
-2acbaf31,jf04wvaw5356,PreTest,,MMX,2acbaf31-cd6d-4cd0-be5b-8fcabf61b267,22020781717,,[]
-59dc983b,jf04wvaw5356,PreTest,,MMX,59dc983b-c80c-4d8b-8df5-04bf92c102fd,22020781717,,[]
 87f332ea,jf04wvaw5356,PreTest,,MMX,87f332ea-447b-407f-92fd-0a6e9ab45313,16026456207,,[]
-90d310a0,jf04wvaw5356,PreTest,,MMX,90d310a0-52d4-45f9-b9f1-b4b6d15eeae8,16026456207,,[]
+90d310a0,jf04wvaw5356,PreTest,,,90d310a0-52d4-45f9-b9f1-b4b6d15eeae8,16026456207,,[]
 dd718065,jf04wvaw5356,PreTest,,MMX,dd718065-032c-456c-a01f-997bd24d24e7,16026456207,,[]
-e984b125,jf04wvaw5356,PreTest,,MMX,e984b125-5357-4f62-b653-19b139706225,NA,,[]
+e984b125,jf04wvaw5356,PreTest,,,e984b125-5357-4f62-b653-19b139706225,NA,,[]
 ce52117b,jf04wvaw5356,PreTest,,MMX,ce52117b-0406-43d5-870f-5f7d2a0ac380,NA,,[]
 727fe807,jf04wvaw5356,PreTest,,MMX,727fe807-5496-4ec6-a1e0-b88c6d51c123,22020774004,,[]
 2a52ebb3,ba05wvaw0118,PreTest,,,2a52ebb3-fd21-4304-9d0a-3810cb857ee4,NA,,[]
@@ -26,7 +14,7 @@ a0c9ec33,jf04wvaw5356,PreTest,,MMX,a0c9ec33-9067-4dfd-8a55-f28d1d3a9eb9,22020781
 eab4cafd,jf04wvaw5320,PreBoot,,,eab4cafd-cfcb-4527-ab06-fcec0fca8dbb,NA,,[]
 514ff9f4,jf04wvaw5318,PreBoot,,,514ff9f4-45d4-4d6f-a644-fb2dffd3ed0e,NA,,[]
 794ba74a,jf04wvaw5356,PreTest,,MMX,794ba74a-982e-4bc4-84ee-9d56a8621f57,NA,,[]
-b84a8835,jf04wvaw5028,PreTest,,MMX,b84a8835-41d7-486c-a1eb-5355b8df7334,NA,,[]
+b84a8835,jf04wvaw5028,PreTest,,,b84a8835-41d7-486c-a1eb-5355b8df7334,NA,,[]
 4961bacd,jf04wvaw5118,PreBoot,,,4961bacd-97c3-477d-871d-a421a91e924b,NA,,[]
 2889efe4,ba05wvaw0163,Test,7d07dc66-6503-4de7-a288-7cf13ef6a265,,2889efe4-f806-4dec-82da-a0145b45ba43,NA,https://axonsv.app.intel.com/apps/record-viewer/7d07dc66-6503-4de7-a288-7cf13ef6a265,"['HW.CFG.ERR', 'HW', 'HW.CORR', 'HW.ERR']"
 275224ec,jf04wvaw5356,PreTest,,MMX,275224ec-5487-466f-826b-cfe76d1be80e,NA,,[]
@@ -244,7 +232,7 @@ de17edc6,jf04wvaw5318,Test,2cb21ca0-46c2-4e5f-a78c-fe2da0fa35dc,,de17edc6-3dda-4
 9d60796a,jf04wvaw5354,PreTest,,,9d60796a-2eba-4c57-bd35-5e0825a9102a,NA,,[]
 af34b7c2,jf04wvaw5318,Test,d1a1b5ed-e768-4e5b-be94-504beeb9d8e3,,af34b7c2-6911-4cc4-8aa7-3fdcda0764be,NA,https://axonsv.app.intel.com/apps/record-viewer/d1a1b5ed-e768-4e5b-be94-504beeb9d8e3,"['HW.CORR', 'HW.ERR', 'HW', 'HW.MCE.IMC']"
 74cd4ec7,jf04wvaw5356,Test,e069fd3b-c13e-42f1-8a93-8d03986ede81,MMX,74cd4ec7-5350-49bb-8564-0df5bacb75e5,22020867598,https://axonsv.app.intel.com/apps/record-viewer/e069fd3b-c13e-42f1-8a93-8d03986ede81,"['HW', 'HW.MCE.IMC', 'HW.ERR', 'HW.CORR']"
-f2cdcd7f,jf04wvaw5356,Test,f0328644-9dac-4b20-a4f9-5dc6872f0693,MMX,f2cdcd7f-3eb0-4b7e-9ef7-389ec0139aec,22020859926,https://axonsv.app.intel.com/apps/record-viewer/f0328644-9dac-4b20-a4f9-5dc6872f0693,"['HW', 'HW.CORR', 'HW.ERR']"
+f2cdcd7f,jf04wvaw5356,Test,f0328644-9dac-4b20-a4f9-5dc6872f0693,,f2cdcd7f-3eb0-4b7e-9ef7-389ec0139aec,22020859926,https://axonsv.app.intel.com/apps/record-viewer/f0328644-9dac-4b20-a4f9-5dc6872f0693,"['HW', 'HW.CORR', 'HW.ERR']"
 b630e4c0,jf04wvaw5318,Test,661ff420-8aee-4d8a-904d-e85b47367f17,,b630e4c0-e5fa-4cab-aa5d-0d3dc40e10f4,NA,https://axonsv.app.intel.com/apps/record-viewer/661ff420-8aee-4d8a-904d-e85b47367f17,"['HW.CORR', 'HW.MCE.IMC', 'HW']"
 15953d70,jf04wvaw5356,Test,2004ae5a-c3dc-4ae3-afce-3ed67f42a47c,MMX,15953d70-f9cd-47d3-86d4-eecc3193a99f,22020867598,https://axonsv.app.intel.com/apps/record-viewer/2004ae5a-c3dc-4ae3-afce-3ed67f42a47c,"['HW.ERR', 'HW.CORR', 'HW.MCE.IMC', 'HW']"
 dd50acf5,jf04wvaw5146,PreTest,,,dd50acf5-8303-4ffe-bb57-dbc034e596c6,NA,,[]
@@ -253,10 +241,10 @@ c722f613,jf04wvaw5146,PreTest,,,c722f613-3349-4208-9442-e28e469c2729,NA,,[]
 6d5c5e1e,jf04wvaw5146,PreTest,,,6d5c5e1e-ac1b-4357-a2c3-e4b203be78c3,NA,,[]
 06a738c0,jf04wvaw5146,PreTest,,,06a738c0-1bb7-4886-a11f-b848379d43b8,NA,,[]
 8880247d,jf04wvaw5146,PreTest,,,8880247d-5969-4d08-84c1-762006c1d036,NA,,[]
-cf48d693,jf04wvaw5146,PreTest,,MMX,cf48d693-d302-494e-a23b-c59f1f3ec67b,NA,,[]
+cf48d693,jf04wvaw5146,PreTest,,,cf48d693-d302-494e-a23b-c59f1f3ec67b,NA,,[]
 113ce212,jf04wvaw5146,PreTest,,MMX,113ce212-e9cf-4aae-b68e-2f0aecd4c02f,NA,,[]
 aae14346,jf04wvaw5319,Test,,MMX,aae14346-8026-4f4f-bba7-efddd0c2fedf,NA,,[]
-2f19781b,jf04wvaw5146,PreTest,,MMX,2f19781b-b651-428b-8aad-52534d76b44f,NA,,[]
+2f19781b,jf04wvaw5146,PreTest,,,2f19781b-b651-428b-8aad-52534d76b44f,NA,,[]
 0b6e3266,jf04wvaw5146,PreTest,,MMX,0b6e3266-1368-4c8a-9ff6-7af07ba9c282,NA,,[]
 a3f14e3a,jf04wvaw5146,PreTest,,MMX,a3f14e3a-858a-4d2c-9a04-54eac5c67e93,NA,,[]
 8743880f,jf04wvaw5146,PreTest,,,8743880f-f182-41ea-8fb8-88625c56cb79,NA,,[]
@@ -269,11 +257,11 @@ ae299723,jf04wvaw5146,PreTest,,MMX,ae299723-625d-4c9f-9791-6af2ec2888ca,NA,,[]
 f47b5c87,jf04wvaw5146,PreTest,,MMX,f47b5c87-701a-4351-9ae8-f5622b39978f,NA,,[]
 fd0ab086,jf04wvaw5146,PreTest,,MMX,fd0ab086-1df9-4499-b191-ba698bd27c1c,NA,,[]
 10daa1e5,jf04wvaw5146,PreTest,,MMX,10daa1e5-c339-4524-854b-70bba950edd9,NA,,[]
-47f33b17,jf04wvaw5146,PreTest,,MMX,47f33b17-72cb-4e29-8509-938800a05f31,NA,,[]
-14387454,jf04wvaw5118,PreBoot,,MMX,14387454-cb3b-415e-bb3c-0462cd0328b6,NA,,[]
+47f33b17,jf04wvaw5146,PreTest,,,47f33b17-72cb-4e29-8509-938800a05f31,NA,,[]
+14387454,jf04wvaw5118,PreBoot,,,14387454-cb3b-415e-bb3c-0462cd0328b6,NA,,[]
 26ccd048,jf04wvaw5356,Test,cb350f64-f06d-4577-be06-87ef8782899e,MMX,26ccd048-8c78-4b44-a609-b38d7e5f4bf2,NA,https://axonsv.app.intel.com/apps/record-viewer/cb350f64-f06d-4577-be06-87ef8782899e,"['HW', 'HW.CORR', 'HW.ERR']"
-ffdcca8a,jf04wvaw5118,PreBoot,,MMX,ffdcca8a-5998-41ce-b2b8-9b141d8fa3dd,NA,,[]
-3180a654,jf04wvaw5381,PreTest,,MMX,3180a654-2e7f-44b7-9b88-e74f2574381f,NA,,[]
+ffdcca8a,jf04wvaw5118,PreBoot,,,ffdcca8a-5998-41ce-b2b8-9b141d8fa3dd,NA,,[]
+3180a654,jf04wvaw5381,PreTest,,,3180a654-2e7f-44b7-9b88-e74f2574381f,NA,,[]
 cf9acdb3,jf04wvaw5457,Test,49e62004-bb03-446c-ae42-e9644cf36b53,MMX,cf9acdb3-8527-4551-a4a6-d8fcca245822,22020867598,https://axonsv.app.intel.com/apps/record-viewer/49e62004-bb03-446c-ae42-e9644cf36b53,"['HW.CORR', 'HW.ERR', 'HW', 'HW.MCE.IMC']"
 a1d7d689,jf04wvaw5319,Test,,MMX,a1d7d689-9760-476d-8d45-c26f094a5c88,14024342092,,[]
 8a6e2f63,jf04wvaw5320,Test,676e2efa-1d79-4343-a838-8b1f981441f7,MMX,8a6e2f63-0394-4266-8d03-4ec2c8fee085,NA,https://axonsv.app.intel.com/apps/record-viewer/676e2efa-1d79-4343-a838-8b1f981441f7,"['HW.CORR', 'HW.ERR', 'HW']"
@@ -289,14 +277,44 @@ f20567cc,jf04wvaw5028,PreTest,,MMX,f20567cc-d101-49c1-a99d-5949bac44194,NA,,[]
 04189dce,jf04wvaw5028,PreTest,,MMX,04189dce-faf2-466d-9de6-04e238294ab2,NA,,[]
 3290cd69,jf04wvaw5028,PreTest,,MMX,3290cd69-ada8-4841-adad-42ef148baf26,NA,,[]
 c00dad48,jf04wvaw5028,PreTest,,MMX,c00dad48-d47e-4586-a7cc-85b30e78083d,NA,,[]
-608f64e7,jf04wvaw5191,Test,03efe3af-f68b-4940-b29f-0eddbcaa64e7,MMX,608f64e7-577b-420e-a384-a7a274ee123c,NA,https://axonsv.app.intel.com/apps/record-viewer/03efe3af-f68b-4940-b29f-0eddbcaa64e7,"['HW.CORR', 'HW', 'HW.MCE.IMC']"
+608f64e7,jf04wvaw5191,Test,03efe3af-f68b-4940-b29f-0eddbcaa64e7,MMX,608f64e7-577b-420e-a384-a7a274ee123c,14024372868,https://axonsv.app.intel.com/apps/record-viewer/03efe3af-f68b-4940-b29f-0eddbcaa64e7,"['HW.CORR', 'HW', 'HW.MCE.IMC']"
 48b8a8ca,jf04wvaw5356,Test,,MMX,48b8a8ca-ecb3-4f49-b799-3881fde760aa,NA,,[]
-ae06733c,jf04wvaw5356,Test,4ed7066d-06ce-4130-b91a-e72632274243,MMX,ae06733c-cc6d-43b3-8416-33f0bd876e2a,NA,https://axonsv.app.intel.com/apps/record-viewer/4ed7066d-06ce-4130-b91a-e72632274243,"['HW.CORR', 'HW', 'HW.ERR']"
+ae06733c,jf04wvaw5356,Test,4ed7066d-06ce-4130-b91a-e72632274243,MMX,ae06733c-cc6d-43b3-8416-33f0bd876e2a,22020888231,https://axonsv.app.intel.com/apps/record-viewer/4ed7066d-06ce-4130-b91a-e72632274243,"['HW.CORR', 'HW', 'HW.ERR']"
 53a22066,jf04wvaw5319,PreBoot,,MMX,53a22066-440e-431f-ad86-21a582032adb,NA,,[]
 be986f32,ba05wvaw0118,PreBoot,,Accelerator,be986f32-5c90-4ff4-aeaa-25ea64f0bc08,NA,,[]
 fba12d27,jf04wvaw5319,PreBoot,,MMX,fba12d27-e12b-420e-b5d7-2ae341d7b70d,NA,,[]
 ba538b9e,jf04wvaw5319,PreBoot,,MMX,ba538b9e-a7c9-4eae-ab6e-a45316037131,NA,,[]
-42aa3535,jf04wvaw5191,Test,,MMX,42aa3535-cab2-4a71-b72c-a6469037ca30,NA,,[]
+42aa3535,jf04wvaw5191,Test,,MMX,42aa3535-cab2-4a71-b72c-a6469037ca30,14024372868,,[]
 b73f922a,jf04wvaw5319,Test,,MMX,b73f922a-f82a-42b6-8973-efa452bc7c4b,NA,,[]
 1a70120d,jf04wvaw5381,Test,b107214d-27eb-4f3a-9641-44feaa8259dd,MMX,1a70120d-9015-4af9-8402-59c0194ffab0,NA,https://axonsv.app.intel.com/apps/record-viewer/b107214d-27eb-4f3a-9641-44feaa8259dd,"['HW', 'HW.CFG.ERR', 'HW.CORR']"
 d848c432,jf04wvaw5318,Test,fcc65253-5453-4de1-b1c4-8c5fc9009f97,MMX,d848c432-408f-413a-b2ae-cbbdaf29a82e,NA,https://axonsv.app.intel.com/apps/record-viewer/fcc65253-5453-4de1-b1c4-8c5fc9009f97,"['HW.CORR', 'HW.MCE.IMC', 'HW', 'HW.ERR']"
+3ad15087,jf04wvaw5307,PreBoot,,gdc_ipu_enabling,3ad15087-b054-4dbe-9282-4d02a60b66d2,NA,,[]
+87a9a669,jf04wvaw5018,PreBoot,,gdc_ipu_enabling,87a9a669-50c6-4bbb-9cfe-8f5aad0a2471,NA,,[]
+6f432f9b,jf04wvaw5088,PreBoot,,gdc_ipu_enabling,6f432f9b-a148-4f23-a319-776ba6b8dc38,NA,,[]
+4159bd08,jf04wvaw5139,PreBoot,,gdc_ipu_enabling,4159bd08-eff4-4df9-8f03-81e692a7fda8,NA,,[]
+ac89ed5a,jf04wvaw5468,PreBoot,,gdc_ipu_enabling,ac89ed5a-9bd3-4f66-9355-7e95f8b77d09,NA,,[]
+f7a93ba7,jf04wvaw5284,PreBoot,,gdc_ipu_enabling,f7a93ba7-155c-48a3-905f-f4e07f9b73bc,NA,,[]
+ac6fae4d,jf04wvaw5139,PreBoot,,gdc_ipu_enabling,ac6fae4d-072e-40d8-810c-93e5f12b4b42,NA,,[]
+e0c0525c,jf04wvaw5088,PreBoot,,gdc_ipu_enabling,e0c0525c-e0f7-41b3-927a-fd4ee6a3abf5,NA,,[]
+5932ea83,jf04wvaw5284,PreBoot,,gdc_ipu_enabling,5932ea83-9bb6-49be-b415-109e583bcc07,NA,,[]
+e4e0e48d,jf04wvaw5468,PreBoot,,gdc_ipu_enabling,e4e0e48d-5911-4cba-b299-9c4990b0bc14,NA,,[]
+3078de91,jf04wvaw5088,PreBoot,,gdc_ipu_enabling,3078de91-cded-4bf9-9f53-f57c51d7069d,NA,,[]
+d52bc51d,jf04wvaw5284,PreBoot,,gdc_ipu_enabling,d52bc51d-ce1a-4330-be6c-4f826fe86a64,NA,,[]
+d783de7f,jf04wvaw5139,PreBoot,,gdc_ipu_enabling,d783de7f-1b5e-4fad-9f4c-b43c7c32989b,NA,,[]
+7c2152b5,jf04wvaw5018,PreBoot,,gdc_ipu_enabling,7c2152b5-e54f-429e-963d-fdbe28bceafe,NA,,[]
+20ca94a4,jf04wvaw5307,PreBoot,,gdc_ipu_enabling,20ca94a4-1286-4be5-92fb-43d3bf233939,NA,,[]
+09c6b811,jf04wvaw5284,PreBoot,,gdc_ipu_enabling,09c6b811-b38a-499f-945d-cb15bc8094a4,NA,,[]
+b9775cef,jf04wvaw5468,PreBoot,,gdc_ipu_enabling,b9775cef-6d02-4d03-83ce-d7916bad4a37,NA,,[]
+ab82e3f6,jf04wvaw5139,PreBoot,,gdc_ipu_enabling,ab82e3f6-6722-46fb-850a-7c1f3fc0577a,NA,,[]
+85450282,jf04wvaw5307,PreBoot,,gdc_ipu_enabling,85450282-96fb-46af-9351-ba546b38a3b3,NA,,[]
+c1aadfbf,jf04wvaw5284,PreBoot,,gdc_ipu_enabling,c1aadfbf-7881-41f9-96a6-2eccb53a2e89,NA,,[]
+9225b011,jf04wvaw5139,PreBoot,,gdc_ipu_enabling,9225b011-a205-468f-b235-895e8e70a47c,NA,,[]
+96a07d04,jf04wvaw5468,PreBoot,,gdc_ipu_enabling,96a07d04-6dde-4daf-b5ea-fde8792dfeca,NA,,[]
+5e779bbf,jf04wvaw5088,PreBoot,,gdc_ipu_enabling,5e779bbf-4763-4d88-928b-41727f726110,NA,,[]
+a51cead3,jf04wvaw5005,PreBoot,,gdc_ipu_enabling,a51cead3-dc02-4cb9-8345-a849d61bfeb4,NA,,[]
+e6ec87f9,jf04wvaw5005,PreBoot,,gdc_ipu_enabling,e6ec87f9-006c-4f69-809b-78c4292e1c51,NA,,[]
+cbfb1a9f,jf04wvaw5018,PreBoot,,gdc_ipu_enabling,cbfb1a9f-290b-4258-945d-ee25ed0cb736,NA,,[]
+ac921418,jf04wvaw5167,PreTest,,MMX,ac921418-c697-47e6-a5db-7461b33c5bc9,NA,,[]
+b967827e,jf04wvaw5319,Test,,MMX,b967827e-bb8e-482c-89c7-564119e0391a,NA,,[]
+d2b7f828,jf04wvaw5318,Test,98c1e1b3-7261-4bc8-94d8-665814e23c0a,MMX,d2b7f828-b889-458c-980c-9e63854a31a8,NA,https://axonsv.app.intel.com/apps/record-viewer/98c1e1b3-7261-4bc8-94d8-665814e23c0a,"['HW.CORR', 'HW', 'HW.MCE.IMC']"
+39c3c213,ba05wvaw0117,Test,122cf8ad-b837-434c-af86-a4ea56f2df8c,Mesh,39c3c213-cedb-4a14-873f-76d6438b7997,NA,https://axonsv.app.intel.com/apps/record-viewer/122cf8ad-b837-434c-af86-a4ea56f2df8c,"['HW.ERR', 'HW.CORR', 'HW']"

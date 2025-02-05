@@ -5,6 +5,8 @@ import re
 from datetime import datetime
 from openai_connector import OpenAIConnector
 import send_email_connector as email_connector
+from HSDES_Extraction import HsdConnector, replace_characters_in_dict_values
+
 
 def image_to_base64(file_path):
     with open(file_path, "rb") as image_file:
@@ -20,7 +22,7 @@ def process_cluster(group, connector):
     if len(output) > 128000:
         output = output[:128000]
     prompt = f"""
-    Hi, this is the failure report of the last 15/30 days in the project. For now, I am providing you with similar hang occurrences with some initial insight about the signature.
+    Hi, this is the failure report of the last 2 days in the project. For now, I am providing you with similar hang occurrences with some initial insight about the signature.
     The following data contains details about unique failures processed with a clustering algorithm. Each cluster is formed based on the failure signature similarity. The 'Base sentence cluster' column indicates the assigned cluster for each failure. Please provide a detailed summary for each cluster in the following HTML format:
     <div>
         <strong>Failure Type {cluster_number} - Cluster {cluster_number}</strong>
@@ -29,8 +31,8 @@ def process_cluster(group, connector):
             <li><strong>Descriptions highlight multiple systems involved; often centered around:</strong> [Summary of systems and errors]</li>
             <li><strong>Typical errors describe situations where:</strong> [Detailed description of typical errors]</li>
             <li><strong>The issues are repeatedly tied to:</strong> [Common causes or patterns]</li>
-            <li><strong>Hsdes link:</strong> Please list each link completely with a description {group[8]}, e.g., "HSDES Link for PCIe Issue"</li>
-            <li><strong>Axon Link:</strong> Please list each link completely with a description {group[9]}, e.g., "Axon Link for PCIe Issue"</li>
+            <li><strong>Hsdes link:</strong> Please list each link completely with a description {group[-2]}, e.g., "HSDES Link for PCIe Issue"</li>
+            <li><strong>Axon Link:</strong> Please list each link completely with a description {group[-1]}, e.g., "Axon Link for PCIe Issue"</li>
             <li><strong>Group Details:</strong> [Highlight different Group]</li>
         </ul>
     </div>
@@ -57,7 +59,10 @@ def get_top_similar_entries(hang_error, hang_error_df):
 def consolidate_summaries(summaries):
     consolidated = {}
     for summary in summaries:
-        failure_type = re.search(r'Failure Type (\d+)', summary).group(1)
+        failure_type = re.search(r'Failure Type (\d+)', summary)
+        if not failure_type:
+            continue
+        failure_type = failure_type.group(1)
         cluster = re.search(r'Cluster (\d+)', summary).group(1)
         key = (failure_type, cluster)
         if key not in consolidated:
@@ -119,7 +124,7 @@ def generate_html_table(summaries):
 def process_project(project_name, input_dir, output_dir):
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
-    input_file = os.path.join(input_dir, f"Updated_failures_{project_name}.csv")
+    input_file = os.path.join(input_dir, f"Updated_failures_{project_name}_Daily.csv")
     sentence_similarity_file = os.path.join(input_dir, f"Combine_cluster_similarity.csv")
 
     if not os.path.exists(input_file) or not os.path.exists(sentence_similarity_file):
@@ -152,8 +157,8 @@ def process_project(project_name, input_dir, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    email_addresses = input("Please provide one or more comma-separated email recipients: ")
-    bar_chart_base64 = image_to_base64('bar_chart.png')
+    email_addresses = "nakul.choudhari@intel.com"#input("Please provide one or more comma-separated email recipients: ")
+    bar_chart_base64 = image_to_base64(f'./{input_dir}/bar_chart.png')
     subject_text = f"AI generated Failure summary with auto Triage - {project_name} {Date}"
     body_text = f"""
     <html>
@@ -164,9 +169,7 @@ def process_project(project_name, input_dir, output_dir):
         <h3>Number of Errors in Each Group</h3>
         <img src="data:image/png;base64,{bar_chart_base64}" alt="Bar Chart">
         {html_table}
-        <ul>
-            {''.join(f'<li>{summary}</li>' for summary in final_summary_df['Summary'])}
-        </ul>
+        
         <p>Thank you for your attention. Please feel free to reach out if you have any questions or need further assistance.</p>
         <p>Best Regards,<br>Nakul Choudhari<br>Intel Corporation</p>
     </body>
