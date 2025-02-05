@@ -4,7 +4,8 @@
 
 In this project, we are using Generative AI to streamline and automate the recommendation system for failure management. Failures from NGA are the main data which is worked upon, and using advanced ML algorithms along with GenAI   techniques, users are recommended types of failures on a daily basis, which helps them analyze easily.
 
-## Installation The requirements.txt contains all the necessary libraries used. Along with that, developers need proper API keys to access NGA, HSD, and OpenAI using APIs.
+## Installation 
+The requirements.txt contains all the necessary libraries used. Along with that, developers need proper API keys to access NGA, HSD, and OpenAI using APIs.
 
 ### Prerequisites
 
