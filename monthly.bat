@@ -9,5 +9,8 @@ python Extraction_DB_runner.py
 REM Run HSDES_Extraction_runner.py
 python HSDES_Extraction_runner.py
 
+REM Run Combine.py
+python Combine.py
+
 REM Run visualization_runner.py
 python visualization_runner.py
