@@ -7,7 +7,6 @@ from openai_connector import OpenAIConnector
 import send_email_connector as email_connector
 from HSDES_Extraction import HsdConnector, replace_characters_in_dict_values
 
-
 def image_to_base64(file_path):
     with open(file_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
@@ -16,7 +15,7 @@ def make_links_clickable(text):
     url_pattern = re.compile(r'(http[s]?://\S+)')
     return url_pattern.sub(r'<a href="\1">\1</a>', text)
 
-def process_cluster(group, connector,hsd_summary):
+def process_cluster(group, connector, hsd_summary):
     cluster_number = group['Base Sentence Cluster']
     output = group.to_string(index=False)
     if len(output) > 128000:
@@ -125,8 +124,8 @@ def generate_html_table(summaries):
 def process_project(project_name, input_dir, output_dir):
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
-    input_file = os.path.join(input_dir, f"Updated_failures_{project_name}_Daily.csv")
-    sentence_similarity_file = os.path.join(input_dir, f"Combine_cluster_similarity.csv")
+    input_file = input_dir + f"/Updated_failures_{project_name}_Daily.csv"
+    sentence_similarity_file = input_dir + "/Combined_cluster_similarity.csv"
     hsd_connector = HsdConnector()
     if not os.path.exists(input_file) or not os.path.exists(sentence_similarity_file):
         print(f"Required files for project '{project_name}' do not exist in '{input_dir}'.")
