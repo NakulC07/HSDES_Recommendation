@@ -19,7 +19,20 @@ for project in projects:
 
     # Perform a VLOOKUP-like merge
     merged_df = pd.merge(sentence_similarity_df, clustering_output_df, how='left', left_on='Base index', right_on='Failure Name')
+        # Columns to keep
+    columns_to_keep = [
+        'Base index', 'Base Sentence', 'Compared index', 'Compared Sentence', 'Similarity',
+        'Errors', 'hsdes_link', 'axon_link', 'Group' , 'Failure Name'
+    ]
 
+    # Identify and handle additional columns
+    for col in merged_df.columns:
+        if col not in columns_to_keep:
+            if 'Unnamed' in col:
+                merged_df = merged_df.drop(columns=[col])
+            else:
+                merged_df.rename(columns={col: 'Base Sentence Cluster'}, inplace=True)
+    
     # Drop unnecessary columns if needed
     merged_df = merged_df.drop(columns=['Failure Name'])
 
