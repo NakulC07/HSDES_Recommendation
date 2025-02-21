@@ -6,23 +6,31 @@ for project in projects:
     # File paths
     clustering_output_file = f'./{project}/{project}_Clustering_Output.csv'
     sentence_similarity_file = f'./{project}/{project}_sentence_similarity.csv'
-
+    db_file = f'./{project}/Updated_failures_{project}.csv'
+    
     # Read the CSV files
     clustering_output_df = pd.read_csv(clustering_output_file)
     sentence_similarity_df = pd.read_csv(sentence_similarity_file)
-
-    # Ensure hsdes_link and axon_link columns are present in clustering_output_df
-    if 'hsdes_link' not in clustering_output_df.columns:
-        clustering_output_df['hsdes_link'] = ''
-    if 'axon_link' not in clustering_output_df.columns:
-        clustering_output_df['axon_link'] = ''
-
+    db_df = pd.read_csv(db_file)
+    # Add 'Failure Name', 'hsdes_link', and 'axon_link' columns from db_df to clustering_output_df if they do not exist
+    columns_to_add = ['Failure Name', 'hsdes_link', 'axon_link']
+    for col in columns_to_add:
+        if col not in clustering_output_df.columns and col in db_df.columns:
+            clustering_output_df = clustering_output_df.merge(db_df[['Failure Name', 'hsdes_link', 'axon_link']], on='Failure Name', how='left')
+    
+    clustering_output_df.to_csv(clustering_output_file , index=False)
+    print(f"Updated the {clustering_output_file}")
     # Perform a VLOOKUP-like merge
-    merged_df = pd.merge(sentence_similarity_df, clustering_output_df, how='left', left_on='Base index', right_on='Failure Name')
-        # Columns to keep
+    if 'Failure Name' in clustering_output_df.columns:
+        merged_df = pd.merge(sentence_similarity_df, clustering_output_df, how='left', left_on='Base index', right_on='Failure Name')
+    else:
+        print(f"'Failure Name' column not found in {clustering_output_file}. Skipping project {project}.")
+        continue
+
+    # Columns to keep
     columns_to_keep = [
         'Base index', 'Base Sentence', 'Compared index', 'Compared Sentence', 'Similarity',
-        'Errors', 'hsdes_link', 'axon_link', 'Group' , 'Failure Name'
+        'Errors', 'hsdes_link', 'axon_link', 'Group', 'Failure Name'
     ]
 
     # Identify and handle additional columns
