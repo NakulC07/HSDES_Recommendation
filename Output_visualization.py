@@ -5,7 +5,7 @@ import os
 
 def generate_visualizations(file_path, sheet_name, cluster_col, group_col, output_dir):
     # Load the Excel file
-    df = pd.read_excel(file_path, sheet_name=sheet_name, engine="openpyxl")
+    df = pd.read_csv(file_path)
     
     # Extract relevant columns
     clusters = df[cluster_col]
@@ -29,18 +29,18 @@ def generate_visualizations(file_path, sheet_name, cluster_col, group_col, outpu
     plt.ylabel('Number of Errors')
     plt.legend(title='Group Legend', labels=[f"{num}: {group}" for group, num in group_to_number.items()], loc='upper left', bbox_to_anchor=(1, 1), fontsize='small')
     plt.tight_layout()
-    bar_chart_path = os.path.join(output_dir, 'bar_chart.png')
+    bar_chart_path = output_dir + '/bar_chart.png'
     plt.savefig(bar_chart_path, bbox_inches='tight')
     plt.close()
     
     # Pie Chart
-    plt.figure(figsize=(10, 10))
+    '''plt.figure(figsize=(10, 10))
     plt.pie(group_cluster_counts, labels=[group_to_number[group] for group in group_cluster_counts.index], autopct='%1.1f%%', startangle=140, colors=sns.color_palette('viridis', len(group_cluster_counts)))
     plt.title('Cluster Distribution')
     plt.legend(title='Group Legend', labels=[f"{num}: {group}" for group, num in group_to_number.items()], loc='upper left', bbox_to_anchor=(1, 1), fontsize='small')
     plt.tight_layout()
     pie_chart_path = os.path.join(output_dir, 'pie_chart.png')
     plt.savefig(pie_chart_path, bbox_inches='tight')
-    plt.close()
+    plt.close()'''
     
     print(f"Visualizations saved to {output_dir}")

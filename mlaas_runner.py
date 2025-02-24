@@ -90,7 +90,7 @@ def download_job_output(job_id):
     
     return False
 
-def process_clustering_output(file_path, output_csv_path):
+def process_clustering_output(file_path, output_csv_path, source_file_path):
     # Read the Excel file
     xls = pd.ExcelFile(file_path)
     
@@ -101,7 +101,11 @@ def process_clustering_output(file_path, output_csv_path):
     # Read the second sheet and keep only the column with the top Model Name
     df_second_sheet = pd.read_excel(xls, sheet_name=1)
     df_filtered = df_second_sheet[['Errors', top_model_name]]
-    
+
+    # Read the source csv file and merge into the clustering csv output
+    df_source = pd.read_csv(source_file_path)
+    df_filtered['Failure Name'] = df_source['Failure Name']
+
     # Save the filtered DataFrame to a CSV file
     df_filtered.to_csv(output_csv_path, index=False)
     print(f"Processed clustering output saved to {output_csv_path}")
@@ -146,7 +150,7 @@ def main():
         os.rename(file_to_extract, clustering_output_file)
 
         # Process the clustering output
-        process_clustering_output(clustering_output_file, processed_clustering_output_csv)
+        process_clustering_output(clustering_output_file, processed_clustering_output_csv, FILE_PATH)
 
         print("Adding a similarity job...")
         # Define the file to upload

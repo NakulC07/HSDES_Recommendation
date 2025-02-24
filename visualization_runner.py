@@ -5,15 +5,15 @@ projects = {
     'nga_fv_gnr': {
         'file_path': './nga_fv_gnr/nga_fv_gnr_Clustering_Output.csv',
         'cluster_col': 'dbscan_UMAP_BERT_euclidean23',
-        'sheet_name' : 'nga_fv_gnr_Clustering_Output.csv',
-        'group_col': 'Group',
+        'sheet_name' : 'nga_fv_gnr_Clustering_Output',
+        'group_col': 'Group Name',
         'output_dir': './nga_fv_gnr'
     },
     'nga_fv_gnrd': {
-        'file_path': './nga_fv_gnrd/nga_fv_gnrd_Clustering_Ouptut.csv',
+        'file_path': './nga_fv_gnrd/nga_fv_gnrd_Clustering_Output.csv',
         'cluster_col': 'agglomerativeClustering_SpectralEmbedding_BERT8',
-        'sheet_name' : 'nga_fv_gnrd_Clustering_Ouptut.csv',
-        'group_col': 'Group',
+        'sheet_name' : 'nga_fv_gnrd_Clustering_Ouptut',
+        'group_col': 'Group Name',
         'output_dir': './nga_fv_gnrd'
     }
 }

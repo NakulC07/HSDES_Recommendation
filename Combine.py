@@ -13,10 +13,10 @@ for project in projects:
     sentence_similarity_df = pd.read_csv(sentence_similarity_file)
     db_df = pd.read_csv(db_file)
     # Add 'Failure Name', 'hsdes_link', and 'axon_link' columns from db_df to clustering_output_df if they do not exist
-    columns_to_add = ['Failure Name', 'hsdes_link', 'axon_link']
+    columns_to_add = ['Failure Name', 'hsdes_link', 'axon_link', 'Group Name']
     for col in columns_to_add:
         if col not in clustering_output_df.columns and col in db_df.columns:
-            clustering_output_df = clustering_output_df.merge(db_df[['Failure Name', 'hsdes_link', 'axon_link']], on='Failure Name', how='left')
+            clustering_output_df = clustering_output_df.merge(db_df[['Failure Name', 'hsdes_link', 'axon_link', 'Group Name']], on='Failure Name', how='left')
     
     clustering_output_df.to_csv(clustering_output_file , index=False)
     print(f"Updated the {clustering_output_file}")
@@ -30,7 +30,7 @@ for project in projects:
     # Columns to keep
     columns_to_keep = [
         'Base index', 'Base Sentence', 'Compared index', 'Compared Sentence', 'Similarity',
-        'Errors', 'hsdes_link', 'axon_link', 'Group', 'Failure Name'
+        'Errors', 'hsdes_link', 'axon_link', 'Group Name', 'Failure Name' , 'Group'
     ]
 
     # Identify and handle additional columns
