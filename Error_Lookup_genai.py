@@ -12,11 +12,27 @@ def image_to_base64(file_path):
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 def make_links_clickable(text):
+    if text is None:
+        return
     url_pattern = re.compile(r'(http[s]?://\S+)')
     return url_pattern.sub(r'<a href="\1">\1</a>', text)
 
-def process_cluster(group, connector, hsd_summary):
+def process_cluster(group, connector, hsd_connector):
+    print(f'''
+          HsdesLink -> {group['hsdes_link']}
+            Axon Link -> {group['axon_link']}''')
+    hsdes_link = group['hsdes_link']
+    axon_link = group['axon_link']
     cluster_number = group['Base Sentence Cluster']
+    if isinstance(hsdes_link , str):
+        
+            val = hsdes_link.split('/')
+            hsd_id = val[6]
+            hsd_data = hsd_connector.get_hsd(hsd_id)
+            hsd_summary = f"HSDES Summary for {hsd_id}: {hsd_data}"
+        
+    else:
+        hsd_summary = None
     output = group.to_string(index=False)
     if len(output) > 128000:
         output = output[:128000]
@@ -30,8 +46,8 @@ def process_cluster(group, connector, hsd_summary):
             <li><strong>Descriptions highlight multiple systems involved; often centered around:</strong> [Summary of systems and errors]</li>
             <li><strong>Typical errors describe situations where:</strong> [Detailed description of typical errors]</li>
             <li><strong>The issues are repeatedly tied to:</strong> [Common causes or patterns]</li>
-            <li><strong>Hsdes link:</strong> Please list each link completely with a description {group[-2]}, e.g., "HSDES Link for PCIe Issue"</li>
-            <li><strong>Axon Link:</strong> Please list each link completely with a description {group[-1]}, e.g., "Axon Link for PCIe Issue"</li>
+                        <li><strong>Hsdes link:</strong> Please list each link completely with a description <a href="{hsdes_link}">{hsdes_link}</a>, e.g., "HSDES Link for PCIe Issue"</li>
+            <li><strong>Axon Link:</strong> Please list each link completely with a description <a href="{axon_link}">{axon_link}</a>, e.g., "Axon Link for PCIe Issue"</li>
             <li><strong>HSDES Summary:</strong> {hsd_summary}</li>
         </ul>
     </div>
@@ -73,6 +89,18 @@ def consolidate_summaries(summaries):
         consolidated_summaries.append(combined_summary)
     return consolidated_summaries
 
+def extract_links(html_string):
+    hsdes_link_pattern = re.compile(r'<li><strong>Hsdes link:</strong>.*?<a href="(.*?)">')
+    axon_link_pattern = re.compile(r'<li><strong>Axon Link:</strong>.*?<a href="(.*?)">')
+
+    hsdes_link_match = hsdes_link_pattern.search(html_string)
+    axon_link_match = axon_link_pattern.search(html_string)
+
+    hsdes_link = hsdes_link_match.group(1) if hsdes_link_match else None
+    axon_link = axon_link_match.group(1) if axon_link_match else None
+
+    return hsdes_link, axon_link
+
 def generate_html_table(summaries):
     html = """
     <html>
@@ -96,11 +124,10 @@ def generate_html_table(summaries):
         error_descriptions = re.search(r'<li><strong>Sentences in this cluster primarily involve errors regarding:</strong> (.*?)</li>', summary).group(1)
         typical_errors = re.search(r'<li><strong>Typical errors describe situations where:</strong> (.*?)</li>', summary).group(1)
         issues_tied_to = re.search(r'<li><strong>The issues are repeatedly tied to:</strong> (.*?)</li>', summary).group(1)
-        hsdes_links = re.findall(r'<li><strong>Hsdes link:</strong> <a href="(.*?)">', summary)
-        axon_links = re.findall(r'<li><strong>Axon Link:</strong> <a href="(.*?)">', summary)
-        hsdes_links_formatted = ', '.join([f'<a href="{link}">HSDES Link</a>' for link in hsdes_links])
-        axon_links_formatted = ', '.join([f'<a href="{link}">Axon Link</a>' for link in axon_links])
-        group_details_match = re.search(r'<li><strong>Group Details:</strong> (.*?)</li>', summary)
+        hsdes_link , axon_link = extract_links(summary)
+        hsdes_link = make_links_clickable(hsdes_link)
+        axon_link = make_links_clickable(axon_link)
+        group_details_match = re.search(r'<li><strong>HSDES Summary:</strong> (.*?)</li>', summary)
         hsdes_details = group_details_match.group(1) if group_details_match else "N/A"
         html += f"""
             <tr>
@@ -109,8 +136,8 @@ def generate_html_table(summaries):
                 <td>{error_descriptions}</td>
                 <td>{typical_errors}</td>
                 <td>{issues_tied_to}</td>
-                <td>{hsdes_links_formatted}</td>
-                <td>{axon_links_formatted}</td>
+                <td>{hsdes_link}</td>
+                <td>{axon_link}</td>
                 <td>{hsdes_details}</td>
             </tr>
         """
@@ -142,24 +169,12 @@ def process_project(project_name, input_dir, output_dir):
 
     for index, row in hang_errors.iterrows():
         error_description = row['Errors']
-        
-        hsdes_link = row.get('hsdes_link', None)
-        if isinstance(hsdes_link , str):
-        
-            val = hsdes_link.split('/')
-            hsd_id = val[6]
-            hsd_data = hsd_connector.get_hsd(hsd_id)
-            hsd_summary = f"HSDES Summary for {hsd_id}: {hsd_data}"
-        
-        else:
-            hsd_summary = f"Generated summary based on error description: {error_description}"
-        
         parts = error_description.split(' ')
         cleaned_parts = [part for part in parts if part != 'None']
         error_description = ''.join(cleaned_parts)
         top_entries = get_top_similar_entries(error_description, hang_error_df)
         for _, entry in top_entries.iterrows():
-            entry_summary = process_cluster(entry, connector , hsd_summary)
+            entry_summary = process_cluster(entry, connector , hsd_connector)
             final_summary_list.append(entry_summary)
 
     consolidated_summaries = consolidate_summaries(final_summary_list)
