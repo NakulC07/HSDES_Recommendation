@@ -18,9 +18,7 @@ def make_links_clickable(text):
     return url_pattern.sub(r'<a href="\1">\1</a>', text)
 
 def process_cluster(group, connector, hsd_connector):
-    print(f'''
-          HsdesLink -> {group['hsdes_link']}
-            Axon Link -> {group['axon_link']}''')
+    
     hsdes_link = group['hsdes_link']
     axon_link = group['axon_link']
     cluster_number = group['Base Sentence Cluster']
