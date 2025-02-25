@@ -11,6 +11,7 @@ import time
 #import send_email_connector as email_connector
 import textwrap
 from io import StringIO
+import os
 import ssl
 import warnings
 from urllib3.exceptions import InsecureRequestWarning
