@@ -3,10 +3,17 @@ import requests
 import time
 import zipfile
 import pandas as pd
+import warnings
+from urllib3.exceptions import InsecureRequestWarning
+from dotenv import load_dotenv
 
+# Suppress only the InsecureRequestWarning from urllib3
+warnings.simplefilter('ignore', InsecureRequestWarning)
+
+load_dotenv()
 # Define the base URL of the API
-BASE_URL = 'https://ssmp.intel.com:9001/api'
-token = os.getenv('SSMPTOKEN')
+BASE_URL = os.getenv('SSMP_URL')
+token = os.getenv('SSMP_TOKEN')
 MLAAS_OUTPUT = './mlaas_output'
 
 def get_data():

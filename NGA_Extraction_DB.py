@@ -17,6 +17,7 @@ import warnings
 from urllib3.exceptions import InsecureRequestWarning
 from dotenv import load_dotenv
 
+load_dotenv()
 # Access the SSL-related environment variables
 ssl_enabled = os.getenv('SSL_ENABLED', 'False').lower() in ('true', '1', 't')
 ssl_cert_path = os.getenv('SSL_CERT_PATH')
