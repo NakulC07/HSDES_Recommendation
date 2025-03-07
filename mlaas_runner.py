@@ -1,13 +1,37 @@
 import os
+import sys
 import requests
 import time
 import zipfile
 import pandas as pd
+import warnings
+from urllib3.exceptions import InsecureRequestWarning
+from dotenv import load_dotenv
+import re
 
+# Suppress only the InsecureRequestWarning from urllib3
+warnings.simplefilter('ignore', InsecureRequestWarning)
+
+load_dotenv()
 # Define the base URL of the API
-BASE_URL = 'https://ssmp.intel.com:9001/api'
-token = os.getenv('SSMPTOKEN')
+BASE_URL = os.getenv('SSMP_URL')
+token = os.getenv('SSMP_TOKEN')
 MLAAS_OUTPUT = './mlaas_output'
+
+# Define a function to replace repeated "None" strings
+def replace_none_strings(error):
+    if isinstance(error, str):
+        # Use a regular expression to match repeated "None" strings
+        pattern = re.compile(r'^(None\s)+None$')
+        if pattern.match(error.strip()):
+            return ''
+    return error
+
+def clean_up_csv(filepath):
+    df = pd.read_csv(filepath)
+    # Apply the function to the 'Errors' column
+    df['Errors'] = df['Errors'].apply(replace_none_strings)
+    df.to_csv(filepath, index=False)
 
 def get_data():
     response = requests.get(f'{BASE_URL}/data', verify=False)
@@ -129,6 +153,7 @@ def main():
         print("Adding a clustering job...")
         # Define the file to upload
         FILE_PATH = f'{project}/Updated_failures_{project}.csv'
+        clean_up_csv(FILE_PATH)
         add_job_response = add_clustering_job('choice1', 'HSDES_recommendation_clustering_job', '["Errors"]', FILE_PATH)
         job_id = add_job_response['project_data'].get('job_id')
         print(f"Job ID: {job_id}")

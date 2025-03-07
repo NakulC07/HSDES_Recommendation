@@ -12,16 +12,44 @@ import time
 import textwrap
 from io import StringIO
 import os
+import ssl
+import warnings
+from urllib3.exceptions import InsecureRequestWarning
+from dotenv import load_dotenv
+
+load_dotenv()
+# Access the SSL-related environment variables
+ssl_enabled = os.getenv('SSL_ENABLED', 'False').lower() in ('true', '1', 't')
+ssl_cert_path = os.getenv('SSL_CERT_PATH')
+
+# Default verify setting
+verify_setting = True
+
+if ssl_enabled:
+    if ssl_cert_path:
+        verify_setting = ssl_cert_path
+    else:
+        verify_setting = True
+else:
+    verify_setting = False
+    # Suppress only the InsecureRequestWarning from urllib3
+    warnings.simplefilter('ignore', InsecureRequestWarning)
 
 class SSLContextAdapter(HTTPAdapter):
     def init_poolmanager(self, *args, **kwargs):
         context = urllib3.util.ssl_.create_urllib3_context()
+        if not ssl_enabled:
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
         kwargs['ssl_context'] = context
         context.load_default_certs()
         return super(SSLContextAdapter, self).init_poolmanager(*args, **kwargs)
 
     def proxy_manager_for(self, *args, **kwargs):
         context = urllib3.util.ssl_.create_urllib3_context()
+        if not ssl_enabled:
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
         kwargs['ssl_context'] = context
         context.load_default_certs()
         return super(SSLContextAdapter, self).proxy_manager_for(*args, **kwargs)
@@ -42,7 +70,7 @@ def extract_data_for_project(project_name, app_reg_id, app_reg_secret, output_di
 
     token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
     get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/{project_name}/api/Failure/Failures/2'
-    response = session.get(get_failure_details, headers={"Authorization": "Bearer " + token["access_token"]})
+    response = session.get(get_failure_details, headers={"Authorization": "Bearer " + token["access_token"]}, verify=verify_setting)
     response_data = response.json()
     number_of_records = response_data['RecordsCount']
     print(f"Number of records for {project_name}: {number_of_records}")
@@ -57,14 +85,14 @@ def extract_data_for_project(project_name, app_reg_id, app_reg_secret, output_di
             test_run_id = record['TestRunId']
             token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
             get_testrunid_details = f'https://nga-prod.laas.icloud.intel.com/TestRun/{project_name}/api/TestRun/{test_run_id}'
-            response_test_run_Id = session.get(get_testrunid_details, headers={"Authorization": "Bearer " + token["access_token"]})
+            response_test_run_Id = session.get(get_testrunid_details, headers={"Authorization": "Bearer " + token["access_token"]}, verify=verify_setting)
             info_test_run_Id = response_test_run_Id.json()
             group_dict = info_test_run_Id['TestGroupIdentifier']
             for key in group_dict:
                 if key == 'EntityId':
                     ID = group_dict[key]
                     get_group_details = f'https://nga-prod.laas.icloud.intel.com/Planning/{project_name}/api/TestGroup/{ID}'
-                    response_group = session.get(get_group_details, headers={"Authorization": "Bearer " + token["access_token"]})
+                    response_group = session.get(get_group_details, headers={"Authorization": "Bearer " + token["access_token"]}, verify=verify_setting)
                     group_info = response_group.json()
                     Group_Name = group_info['Name']
         except:
@@ -98,6 +126,6 @@ def extract_data_for_project(project_name, app_reg_id, app_reg_secret, output_di
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    output_file = os.path.join(output_dir, f"{project_name}_Daily_Extracted.csv")
+    output_file = os.path.join(output_dir, f"{project_name}_NGA_Daily_Extracted.csv")
     df.to_csv(output_file, index=False)
     print(f"Data for {project_name} saved to {output_file}")

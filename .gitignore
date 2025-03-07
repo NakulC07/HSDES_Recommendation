@@ -1,2 +1,6 @@
 # Ignore .env file
 .env
+mlaas_output/
+nga_fv_gnr/
+nga_fv_gnrd/
+__pycache__/
