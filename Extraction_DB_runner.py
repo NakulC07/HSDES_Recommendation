@@ -21,6 +21,8 @@ def main():
     projects = find_projects_and_files(base_dir)
     print(projects)
     for project_name, input_file in projects.items():
+        #if project_name == 'nga_fv_gnr':
+        #    continue
         # Define the directory for the project
         project_dir = os.path.join(base_dir, project_name)
 

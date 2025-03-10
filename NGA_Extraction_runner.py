@@ -16,6 +16,8 @@ projects = ['nga_fv_gnr' , 'nga_fv_gnrd']
 # Store the project name in a temporary file
 
 for project_name in projects:
+    #if project_name == 'nga_fv_gnr':
+    #    continue
     with open("current_project.txt", "w") as file:
         file.write(project_name)
 
