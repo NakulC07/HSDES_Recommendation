@@ -19,6 +19,8 @@ projects = {
 }
 
 for project_name, params in projects.items():
+    if project_name == 'nga_fv_gnr':
+        continue
     generate_visualizations(
         file_path=params['file_path'],
         sheet_name=params['sheet_name'],

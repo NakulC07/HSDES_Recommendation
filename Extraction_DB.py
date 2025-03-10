@@ -54,11 +54,10 @@ class HSDES_Extraction:
             f"analyzers.oobmsm", f"analyzers.ieh", f"analyzers.mcchnl"
         ]
         attribute_2 = f"insights_summary"
-        for domain in status_scope_summary_domain:
-            try:
-                summaries.append(self.get_summary(vallog, status_scope_report, domain, attribute_2, axon))
-            except:
-                continue
+        try:
+            summaries.append(self.get_summary(vallog, status_scope_report, "analyzers.ubox", attribute_2, axon))
+        except:
+            exit
         return summaries
 
     def get_summary(self, uuid, report, domain, attribute, axon):
@@ -127,6 +126,7 @@ def process_project(project_name, input_file, output_dir):
     filtered_df = df[df['Debug Snapshot'].notna()]
     df_concat = pd.concat([filtered_df.reset_index(drop=True), df_hsdes.reset_index(drop=True), df_msgs.reset_index(drop=True)], axis=1)
 
+    
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 

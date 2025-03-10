@@ -147,12 +147,12 @@ def main():
     else:
         print(f"Folder '{MLAAS_OUTPUT}' already exists.")
 
-    projects = ['nga_fv_gnr', 'nga_fv_gnrd']
+    projects = ['Merged']
 
     for project in projects:
         print("Adding a clustering job...")
         # Define the file to upload
-        FILE_PATH = f'{project}/Updated_failures_{project}.csv'
+        FILE_PATH = f'./Updated_failures_{project}.csv'
         clean_up_csv(FILE_PATH)
         add_job_response = add_clustering_job('choice1', 'HSDES_recommendation_clustering_job', '["Errors"]', FILE_PATH)
         job_id = add_job_response['project_data'].get('job_id')
@@ -164,8 +164,8 @@ def main():
 
         zip_file_path = f'{MLAAS_OUTPUT}/{job_id}_output.zip'
         file_to_extract = f'output/modelling_output.xlsx'
-        clustering_output_file = f'./{project}/{project}_Clustering_Output.xlsx'
-        processed_clustering_output_csv = f'./{project}/{project}_Clustering_Output.csv'
+        clustering_output_file = f'./Clustering_Output.xlsx'
+        processed_clustering_output_csv = f'./Clustering_Output.csv'
         # Open the ZIP file
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
             # Extract the specific file
@@ -179,7 +179,7 @@ def main():
 
         print("Adding a similarity job...")
         # Define the file to upload
-        FILE_PATH = f'{project}/Updated_failures_{project}.csv'
+        FILE_PATH = f'./Updated_failures_{project}.csv'
         add_job_response = add_similarity_job('app1', 'HSDES_recommendation_similarity_job', 'Failure Name', 'Errors', FILE_PATH)
         job_id = add_job_response['project_data'].get('job_id')
         print(f"Job ID: {job_id}")
@@ -190,7 +190,7 @@ def main():
         
         zip_file_path = f'{MLAAS_OUTPUT}/{job_id}_output.zip'
         file_to_extract = f'output/sentence_similarity.csv'
-        sentence_similarity_file = f'./{project}/{project}_sentence_similarity.csv'
+        sentence_similarity_file = f'./sentence_similarity.csv'
         # Open the ZIP file
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
             # Extract the specific file

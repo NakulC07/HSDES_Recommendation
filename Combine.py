@@ -1,12 +1,12 @@
 import pandas as pd
 
-projects = ["nga_fv_gnr", "nga_fv_gnrd"]
+projects = ["Merged"]
 
 for project in projects:
     # File paths
-    clustering_output_file = f'./{project}/{project}_Clustering_Output.csv'
-    sentence_similarity_file = f'./{project}/{project}_sentence_similarity.csv'
-    db_file = f'./{project}/Updated_failures_{project}.csv'
+    clustering_output_file = f'./Clustering_Output.csv'
+    sentence_similarity_file = f'./sentence_similarity.csv'
+    db_file = f'./Updated_failures_{project}.csv'
     
     # Read the CSV files
     clustering_output_df = pd.read_csv(clustering_output_file)
@@ -45,7 +45,7 @@ for project in projects:
     merged_df = merged_df.drop(columns=['Failure Name'])
 
     # Save the merged DataFrame to a new CSV file
-    output_file = f'./{project}/Combined_cluster_similarity.csv'
+    output_file = f'./Combined_cluster_similarity.csv'
     merged_df.to_csv(output_file, index=False)
 
     print(f"Combined data saved to {output_file}")

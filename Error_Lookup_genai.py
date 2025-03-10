@@ -117,13 +117,16 @@ def generate_html_table(summaries):
             </tr>
     """
     for summary in summaries:
-        failure_type = re.search(r'Failure Type (\d+)', summary).group(1)
         cluster = re.search(r'Cluster (\d+)', summary).group(1)
         error_descriptions = re.search(r'<li><strong>Sentences in this cluster primarily involve errors regarding:</strong> (.*?)</li>', summary).group(1)
         typical_errors = re.search(r'<li><strong>Typical errors describe situations where:</strong> (.*?)</li>', summary).group(1)
         issues_tied_to = re.search(r'<li><strong>The issues are repeatedly tied to:</strong> (.*?)</li>', summary).group(1)
         hsdes_link , axon_link = extract_links(summary)
         hsdes_link = make_links_clickable(hsdes_link)
+        if hsdes_link is None:
+            failure_type = "New Failure type"
+        else:
+            failure_type = "Failure Type exists"
         axon_link = make_links_clickable(axon_link)
         group_details_match = re.search(r'<li><strong>HSDES Summary:</strong> (.*?)</li>', summary)
         hsdes_details = group_details_match.group(1) if group_details_match else "N/A"
@@ -150,7 +153,7 @@ def process_project(project_name, input_dir, output_dir):
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
     input_file = input_dir + f"/Updated_failures_{project_name}_Daily.csv"
-    sentence_similarity_file = input_dir + "/Combined_cluster_similarity.csv"
+    sentence_similarity_file = "./Combined_cluster_similarity.csv"
     hsd_connector = HsdConnector()
     if not os.path.exists(input_file) or not os.path.exists(sentence_similarity_file):
         print(f"Required files for project '{project_name}' do not exist in '{input_dir}'.")
