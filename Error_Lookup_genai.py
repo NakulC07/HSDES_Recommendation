@@ -122,11 +122,11 @@ def generate_html_table(summaries):
         typical_errors = re.search(r'<li><strong>Typical errors describe situations where:</strong> (.*?)</li>', summary).group(1)
         issues_tied_to = re.search(r'<li><strong>The issues are repeatedly tied to:</strong> (.*?)</li>', summary).group(1)
         hsdes_link , axon_link = extract_links(summary)
-        hsdes_link = make_links_clickable(hsdes_link)
         if hsdes_link is None:
             failure_type = "New Failure type"
         else:
             failure_type = "Failure Type exists"
+        hsdes_link = make_links_clickable(hsdes_link)
         axon_link = make_links_clickable(axon_link)
         group_details_match = re.search(r'<li><strong>HSDES Summary:</strong> (.*?)</li>', summary)
         hsdes_details = group_details_match.group(1) if group_details_match else "N/A"
