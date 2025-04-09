@@ -69,7 +69,7 @@ def extract_data_for_project(project_name, app_reg_id, app_reg_secret, output_di
     session.mount('https://nga-prod.laas.icloud.intel.com', SslContextAdapter)
 
     token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
-    get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/{project_name}/api/Failure/Failures/2'
+    get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/{project_name}/api/Failure/Failures/5'
     response = session.get(get_failure_details, headers={"Authorization": "Bearer " + token["access_token"]}, verify=verify_setting)
     response_data = response.json()
     number_of_records = response_data['RecordsCount']

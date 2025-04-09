@@ -1,14 +1,9 @@
-import os
-import requests
-import urllib3
-import http.client
-import traceback
-import pandas as pd
 from requests_kerberos import HTTPKerberosAuth
+import requests
+import pandas as pd
 from openai_connector import OpenAIConnector
 from datetime import datetime
-import json
-
+import os
 requests.packages.urllib3.disable_warnings()
 
 class HsdConnector:
@@ -26,8 +21,8 @@ class HsdConnector:
     def get_hsd(self, hsd_id, fields=None):
         if fields == "":
             fields = None
-        assert fields is None or (len(fields) > 0 and type(fields) != str and all([type(f) == str for f in fields])), \
-            "fields must be None or a list\iterator of strings. Got %s." % (repr(fields),)
+        assert fields is None or (len(fields) > 0 and not isinstance(fields, str) and all([isinstance(f, str) for f in fields])), \
+            "fields must be None or a list/iterator of strings. Got %s." % (repr(fields),)
         retry = 10
         while retry > 0:
             try:
@@ -40,56 +35,52 @@ class HsdConnector:
                     return response_data["data"][0]
                 else:
                     raise Exception('Could not find "data" in response...')
-            except (urllib3.exceptions.MaxRetryError, requests.exceptions.ProxyError, http.client.RemoteDisconnected):
+            except (requests.exceptions.RequestException, Exception) as e:
                 retry -= 1
-            except Exception as e:
-                retry -= 1
+                if retry == 0:
+                    raise e
 
 def replace_characters_in_dict_values(dictionary, char_to_replace1, replacement1, char_to_replace2, replacement2):
     for key, value in dictionary.items():
         if isinstance(value, str):
-            value = value.replace(char_to_replace1, replacement1)
-            value = value.replace(char_to_replace2, replacement2)
+            value = value.replace(char_to_replace1, replacement1).replace(char_to_replace2, replacement2)
             dictionary[key] = value
     return dictionary
 
-def process_data_in_chunks(df, connector, chunk_size=10):
-    extracted_data = []
+def process_data_in_chunks(df, connector, chunk_size=50):
     final_summary = ""
-    for chunk in df:
-        chunk_summary = ""
-        for link in chunk['hsdes_link'].dropna():
-            val = link.split('/')
-            hsd_id = val[6]
-            hsd = HsdConnector()
-            data = hsd.get_hsd(hsd_id)
-            extracted_data.append(data)
-        df_extracted = pd.DataFrame(extracted_data)
-        output = df_extracted.to_string(index=False)
-        lines = output.split('\n')
-        smaller_chunks = [lines[i:i + chunk_size] for i in range(0, len(lines), chunk_size)]
-        for small_chunk in smaller_chunks:
-            try:
-                prompt = f"{small_chunk} With given data of failures analyze everything and give proper report of it without missing a single data."
-                messages = [
-                    {"role": "system", "content": "summary"},
-                    {"role": "user", "content": prompt}
-                ]
-                res = connector.run_prompt(messages)
-                res = replace_characters_in_dict_values(res, ',', ';', '|', ',')
-                chunk_summary += res['response'] + "\n"
-            except OpenAIConnector.BadRequestError as e:
-                continue
-        final_summary += chunk_summary
+    output = df.to_string()
+    lines = output.split('\n')
+    smaller_chunks = [lines[i:i + chunk_size] for i in range(0, len(lines), chunk_size)]
+    for small_chunk in smaller_chunks:
+        try:
+            prompt = f"""
+            Extract the following details from the given data of failures and provide a comprehensive report:
+            - Root Cause Notes
+            - Fix Description
+            - Component
+            - Comments
+
+            Data:
+            {''.join(small_chunk)}
+            """
+            messages = [
+                {"role": "system", "content": "summary"},
+                {"role": "user", "content": prompt}
+            ]
+            res = connector.run_prompt(messages)
+            res = replace_characters_in_dict_values(res, ',', ';', '|', ',')
+            final_summary += res['response'] + "\n"
+        except OpenAIConnector.BadRequestError as e:
+            print(e)
     return final_summary
 
 def process_project(project_name, input_file, output_dir):
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
     df = pd.read_csv(input_file)
-    chunks = [df[i:i + 50] for i in range(0, df.shape[0], 50)]
     connector = OpenAIConnector()
-    final_summary = process_data_in_chunks(chunks, connector)
+    final_summary = process_data_in_chunks(df, connector)
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -100,6 +91,6 @@ def process_project(project_name, input_file, output_dir):
     with open(file_name, "w") as file:
         file.write(final_summary)
     with open(file_name1, "w") as file:
-        file.write(df.to_string(index=False))
+        file.write(df.to_string())
 
     print(f"Data for {project_name} saved to {file_name} and {file_name1}")
