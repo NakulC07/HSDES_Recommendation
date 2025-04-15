@@ -6,7 +6,6 @@ from datetime import datetime
 from openai_connector import OpenAIConnector
 import send_email_connector as email_connector
 from HSDES_Extraction import HsdConnector , process_data_in_chunks
-import time
 
 def image_to_base64(file_path):
     with open(file_path, "rb") as image_file:
@@ -46,7 +45,6 @@ def process_cluster(group, connector, hsd_connector):
     <div>
         <strong>Failure Type {cluster_number} - Cluster {cluster_number}</strong>
         <ul>
-            <li><strong>Sentences in this cluster primarily involve errors regarding:</strong> [List of key error phrases]</li>
             <li><strong>Hsdes link:</strong> Please list each link completely with a description <a href="{hsdes_link}">{hsdes_link}</a>, e.g., "HSDES Link for PCIe Issue"</li>
             <li><strong>Axon Link:</strong> Please list each link completely with a description <a href="{axon_link}">{axon_link}</a>, e.g., "Axon Link for PCIe Issue"</li>
             <li><strong>Root Cause Notes</strong></li>
@@ -85,6 +83,12 @@ def consolidate_summaries(summaries):
         # Extract failure type and cluster from the summary
         failure_type_match = re.search(r'Failure Type (\d+)', summary)
         cluster_match = re.search(r'Cluster (\d+)', summary)
+
+        # Skip summaries that don't have both failure type and cluster
+        '''if not failure_type_match or not cluster_match:
+            print(f"Skipping summary due to missing failure type or cluster: {summary}")
+            continue
+'''
         failure_type = failure_type_match.group(1)
         cluster = cluster_match.group(1)
 
@@ -128,7 +132,7 @@ def generate_html_table(summaries):
         <table border="1" style="width:100%; border-collapse: collapse; text-align: left;">
             <tr>
                 <th>Failure Type</th>
-                <th>Error</th>
+                <th>Cluster</th>
                 <th>Root Cause Notes</th>
                 <th>Fix Description</th>
                 <th>HSDES Links</th>
@@ -137,7 +141,7 @@ def generate_html_table(summaries):
             </tr>
     """
     for summary in summaries:
-        #cluster = re.search(r'Cluster (\d+)', summary).group(1)
+        cluster = re.search(r'Cluster (\d+)', summary).group(1)
         hsdes_link, axon_link = extract_links(summary)
 
         # Skip rows where hsdes_link is None or empty
@@ -145,18 +149,11 @@ def generate_html_table(summaries):
             continue
 
         failure_type = "New Failure type" if hsdes_link is None else "Failure Type exists"
-        error_descriptions = re.search(r'<li><strong>Sentences in this cluster primarily involve errors regarding:</strong> (.*?)</li>', summary)
-        time.sleep(1)
-        if error_descriptions is not None:
-            error_descriptions=error_descriptions.group(1)
         hsdes_link = make_links_clickable(hsdes_link)
-        time.sleep(1)
+        axon_link = make_links_clickable(axon_link)
         root_cause_notes = re.search(r'Root Cause Notes:\s*(.*?)(?=\n|$)', summary)
-        time.sleep(1)
         fix_description = re.search(r'Fix Description:\s*(.*?)(?=\n|$)', summary)
-        time.sleep(1)
         component = re.search(r'Component:\s*(.*?)(?=\n|$)', summary)
-        time.sleep(1)
         comments = re.search(r'Comments:\s*(.*?)(?=\n|$)', summary)
         
         root_cause_notes = root_cause_notes.group(1).strip() if root_cause_notes else "N/A"
@@ -166,7 +163,7 @@ def generate_html_table(summaries):
         html += f"""
             <tr>
                 <td>{failure_type}</td>
-                <td>{error_descriptions}</td>
+                <td>{cluster}</td>
                 <td>{root_cause_notes}</td>
                 <td>{fix_description}</td>
                 <td>{hsdes_link}</td>
@@ -230,7 +227,7 @@ def process_project(project_name, input_dir, output_dir):
         os.makedirs(output_dir)
 
     email_addresses = "nakul.choudhari@intel.com"  # input("Please provide one or more comma-separated email recipients: ")
-    bar_chart_base64 = image_to_base64('./output/bar_chart.png')
+    bar_chart_base64 = image_to_base64(f'./{input_dir}/bar_chart.png')
     subject_text = f"AI generated Failure summary with auto Triage - {project_name} {Date}"
     body_text = f"""
     <html>

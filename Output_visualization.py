@@ -3,35 +3,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-def preprocess_group_names(df, error_col, group_col):
-    """
-    Preprocess the Group Name column by filling empty values based on matching errors.
-    """
-    # Identify rows with empty Group Name
-    empty_group_rows = df[df[group_col].isnull() | (df[group_col] == "")]
-    
-    # Iterate over rows with empty Group Name
-    for index, row in empty_group_rows.iterrows():
-        error = row[error_col]
-        
-        # Find matching rows with the same error and a non-empty Group Name
-        matching_rows = df[(df[error_col] == error) & (df[group_col].notnull()) & (df[group_col] != "")]
-        
-        if not matching_rows.empty:
-            # Assign the most common Group Name from matching rows
-            df.at[index, group_col] = matching_rows[group_col].mode()[0]
-        else:
-            # Assign a default group name if no match is found
-            df.at[index, group_col] = "Uncategorized"
-    
-    return df
-
 def generate_visualizations(file_path, sheet_name, cluster_col, group_col, output_dir):
-    # Load the CSV file
+    # Load the Excel file
+    # df = pd.read_excel(file_path, sheet_name=sheet_name, engine="openpyxl")
     df = pd.read_csv(file_path)
-    
-    # Preprocess Group Name column
-    df = preprocess_group_names(df, error_col="Errors", group_col=group_col)
     
     # Extract relevant columns
     cluster_col = df.columns[1]
@@ -59,5 +34,15 @@ def generate_visualizations(file_path, sheet_name, cluster_col, group_col, outpu
     bar_chart_path = os.path.join(output_dir, 'bar_chart.png')
     plt.savefig(bar_chart_path, bbox_inches='tight')
     plt.close()
+    
+    # Pie Chart
+    '''plt.figure(figsize=(10, 10))
+    plt.pie(group_cluster_counts, labels=[group_to_number[group] for group in group_cluster_counts.index], autopct='%1.1f%%', startangle=140, colors=sns.color_palette('viridis', len(group_cluster_counts)))
+    plt.title('Cluster Distribution')
+    plt.legend(title='Group Legend', labels=[f"{num}: {group}" for group, num in group_to_number.items()], loc='upper left', bbox_to_anchor=(1, 1), fontsize='small')
+    plt.tight_layout()
+    pie_chart_path = os.path.join(output_dir, 'pie_chart.png')
+    plt.savefig(pie_chart_path, bbox_inches='tight')
+    plt.close()'''
     
     print(f"Visualizations saved to {output_dir}")
