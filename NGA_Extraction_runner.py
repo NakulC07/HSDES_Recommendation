@@ -11,7 +11,7 @@ app_reg_id = '2e75abe8-764a-4773-9433-d064c27eacbf'
 app_reg_secret = 'Uix0KsdXU0Zzv3pN2hmPLHJ+Ti]V?v_i'
 
 # Prompt the user for the project name
-projects = ['nga_fv_gnr' , 'nga_fv_gnrd']
+projects = ['nga_fv_gnrd']
 
 # Store the project name in a temporary file
 
