@@ -52,7 +52,7 @@ def process_cluster(group, connector, hsd_connector):
             <li><strong>Root Cause Notes</strong></li>
             <li><strong>Fix Description</strong></li>
             <li><strong>Component</strong></li>
-            <li><strong>Comments</strong></li>
+            <li><strong>Discussion</strong></li>
         </ul>
     </div>
     Extract the following details from the given data of failures and provide a comprehensive report:
@@ -145,6 +145,7 @@ def generate_html_table(summaries):
             continue
 
         failure_type = "New Failure type" if hsdes_link is None else "Failure Type exists"
+        time.sleep(1)
         error_descriptions = re.search(r'<li><strong>Sentences in this cluster primarily involve errors regarding:</strong> (.*?)</li>', summary)
         time.sleep(1)
         if error_descriptions is not None:
@@ -229,9 +230,9 @@ def process_project(project_name, input_dir, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    email_addresses = "nakul.choudhari@intel.com"  # input("Please provide one or more comma-separated email recipients: ")
+    email_addresses = "svl-fvleads-india@intel.com,svl-fvmgrs-india@intel.com,svhe-fsv-india@intel.com"  # input("Please provide one or more comma-separated email recipients: ")
     bar_chart_base64 = image_to_base64('./output/bar_chart.png')
-    subject_text = f"AI generated Failure summary with auto Triage - {project_name} {Date}"
+    subject_text = f"AI Generated Failure Report for - GNRD-XCCp {Date}"
     body_text = f"""
     <html>
     <body>
@@ -243,7 +244,7 @@ def process_project(project_name, input_dir, output_dir):
         {html_table}
         
         <p>Thank you for your attention. Please feel free to reach out if you have any questions or need further assistance.</p>
-        <p>Best Regards,<br>Nakul Choudhari<br>Intel Corporation</p>
+        <p>Best Regards,<br>SVHE AI Acceleration Team<br>Intel Corporation</p>
     </body>
     </html>
     """
