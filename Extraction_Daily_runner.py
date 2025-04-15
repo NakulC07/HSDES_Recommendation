@@ -4,7 +4,7 @@ import os
 
 def main():
     # Read the project name from the file
-    project_names = ["nga_fv_gnr" , "nga_fv_gnrd"]
+    project_names = ["nga_fv_gnrd"]
     for project_name in project_names:
     
         # Define the input file and output directory based on the project name
