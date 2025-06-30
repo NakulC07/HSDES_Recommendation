@@ -1,16 +1,9 @@
 from __future__ import print_function, division, absolute_import, unicode_literals
 from requests.adapters import HTTPAdapter
-import requests, urllib3, json                      # requests > For HTTP Call
+import requests
+import urllib3
 from msal import ConfidentialClientApplication      # msal > For Aouth2
 import pandas as pd
-from datetime import datetime
-import certifi
-from requests_kerberos import HTTPKerberosAuth
-import time
-#from openai_connector import OpenAIConnector
-#import send_email_connector as email_connector
-import textwrap
-from io import StringIO
 import os
 import ssl
 import warnings
@@ -55,6 +48,15 @@ class SSLContextAdapter(HTTPAdapter):
         return super(SSLContextAdapter, self).proxy_manager_for(*args, **kwargs)
 
 def extract_data_for_project(project_name, app_reg_id, app_reg_secret):
+    # Get NGA configuration from environment
+    nga_client_id = os.getenv('NGA_CLIENT_ID')
+    nga_scope = os.getenv('NGA_SCOPE')
+    
+    if not nga_client_id or not nga_scope:
+        raise ValueError("NGA_CLIENT_ID and NGA_SCOPE environment variables must be set. Please check your .env file.")
+    
+    nga_scope_token = f"{nga_client_id}/{nga_scope}"
+    
     app = ConfidentialClientApplication(app_reg_id, app_reg_secret,
                                         str("https://login.microsoftonline.com/intel.onmicrosoft.com"))
     retries = urllib3.Retry(
@@ -68,8 +70,8 @@ def extract_data_for_project(project_name, app_reg_id, app_reg_secret):
     session = requests.Session()
     session.mount('https://nga-prod.laas.icloud.intel.com', SslContextAdapter)
 
-    token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
-    get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/{project_name}/api/Failure/Failures/365'
+    token = app.acquire_token_for_client([str(nga_scope_token)])
+    get_failure_details = f'https://nga-prod.laas.icloud.intel.com/Failure/{project_name}/api/Failure/Failures/365?pageSize=1000'
     response = session.get(get_failure_details, headers={"Authorization": "Bearer " + token["access_token"]}, verify=verify_setting)
     response_data = response.json()
     number_of_records = response_data['RecordsCount']
@@ -79,31 +81,52 @@ def extract_data_for_project(project_name, app_reg_id, app_reg_secret):
     for record in response_data["Records"]:
         axon_sv_record_viewer_key = next((key for key in record.get("StringExternalInfo", {}) if key.startswith("AxonSV Record Viewer")), None)
         axon_sv_record_viewer_link = record.get("StringExternalInfo", {}).get(axon_sv_record_viewer_key, None)
-        signatures = [signature["Signature"] for signature in record.get("Signatures", [])]
         tags = record.get("Tags", [])
         try:
             test_run_id = record['TestRunId']
-            token = app.acquire_token_for_client([str("6af0841e-c789-4b7b-a059-1cec575fbddb/.default")])
-            get_testrunid_details = f'https://nga-prod.laas.icloud.intel.com/TestRun/{project_name}/api/TestRun/{test_run_id}'
+            token = app.acquire_token_for_client([str(nga_scope_token)])
+            # Updated API endpoint as per admin recommendation
+            get_testrunid_details = f'https://nga.laas.icloud.intel.com/Results/{project_name}/api/TestRun/{test_run_id}'
             response_test_run_Id = session.get(get_testrunid_details, headers={"Authorization": "Bearer " + token["access_token"]}, verify=verify_setting)
-            info_test_run_Id = response_test_run_Id.json()
-            group_dict = info_test_run_Id['TestGroupIdentifier']
-            for key in group_dict:
-                if key == 'EntityId':
-                    ID = group_dict[key]
-                    get_group_details = f'https://nga-prod.laas.icloud.intel.com/Planning/{project_name}/api/TestGroup/{ID}'
-                    response_group = session.get(get_group_details, headers={"Authorization": "Bearer " + token["access_token"]}, verify=verify_setting)
-                    group_info = response_group.json()
-                    Group_Name = group_info['Name']
-        except:
+            
+            if response_test_run_Id.status_code == 200:
+                info_test_run_Id = response_test_run_Id.json()
+                
+                # Get Group Name using TestGroupId from the new API response
+                test_group_id = info_test_run_Id.get('TestGroupId')
+                if test_group_id:
+                    try:
+                        # Get fresh token for TestGroup API call
+                        token = app.acquire_token_for_client([str(nga_scope_token)])
+                        get_group_details = f'https://nga-prod.laas.icloud.intel.com/Planning/{project_name}/api/TestGroup/{test_group_id}'
+                        response_group = session.get(get_group_details, headers={"Authorization": "Bearer " + token["access_token"]}, verify=verify_setting)
+                        if response_group.status_code == 200:
+                            group_info = response_group.json()
+                            Group_Name = group_info.get('Name', '')
+                        else:
+                            Group_Name = ""
+                    except Exception:
+                        Group_Name = ""
+                else:
+                    Group_Name = ""
+            else:
+                Group_Name = ""
+        except Exception:
             Group_Name = ""
         try:
-            if record['StringExternalInfo']:
-                for key in record['StringExternalInfo']:
-                    if key.endswith('_signature'):
-                        debug_snapshot = key.split('_')[1]
-                        break
-        except:
+            debug_snapshot = ""
+            if record.get('StringExternalInfo'):
+                string_external_info = record['StringExternalInfo']
+                if isinstance(string_external_info, dict):
+                    for key in string_external_info:
+                        if key.endswith('_signature'):
+                            debug_snapshot = key.split('_')[1]
+                            break
+                        elif 'signature' in key.lower():
+                            # Alternative approach if the key format is different
+                            debug_snapshot = string_external_info[key]
+                            break
+        except Exception:
             debug_snapshot = ""
         try:
             Id_NGA = record['Id']
@@ -120,7 +143,7 @@ def extract_data_for_project(project_name, app_reg_id, app_reg_secret):
                 "Signatures": tags
             }
             extracted_data.append(record_data)
-        except:
+        except Exception:
             pass
 
     df = pd.DataFrame(extracted_data)
