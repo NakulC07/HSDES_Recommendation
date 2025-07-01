@@ -16,6 +16,8 @@ load_dotenv()
 # Define the base URL of the API
 BASE_URL = os.getenv('SSMP_URL')
 token = os.getenv('SSMP_TOKEN')
+print("BASE_URL:", BASE_URL)
+print("token:", token)
 MLAAS_OUTPUT = './mlaas_output'
 
 # Define a function to replace repeated "None" strings
@@ -52,9 +54,11 @@ def add_job(project_name, input_fields, file_path):
             except ValueError as e:
                 print("Error decoding JSON:", e)
                 print("Response content:", response.text)
+                return None
         else:
             print("Request failed with status code:", response.status_code)
             print("Response content:", response.text)
+            return None
 
 def add_clustering_job(model, project_name, multi_inputs, file_path):
     with open(file_path, 'rb') as file:
@@ -71,9 +75,11 @@ def add_clustering_job(model, project_name, multi_inputs, file_path):
             except ValueError as e:
                 print("Error decoding JSON:", e)
                 print("Response content:", response.text)
+                return None
         else:
             print("Request failed with status code:", response.status_code)
             print("Response content:", response.text)
+            return None
 
 def add_similarity_job(model, project_name, index_input, single_input, file_path):
     with open(file_path, 'rb') as file:
@@ -90,9 +96,11 @@ def add_similarity_job(model, project_name, index_input, single_input, file_path
             except ValueError as e:
                 print("Error decoding JSON:", e)
                 print("Response content:", response.text)
+                return None
         else:
             print("Request failed with status code:", response.status_code)
             print("Response content:", response.text)
+            return None
 
 def download_job_output(job_id):
     url = f'{BASE_URL}/output?job_id={job_id}'
@@ -155,6 +163,11 @@ def main():
         FILE_PATH = f'./Updated_failures_{project}.csv'
         clean_up_csv(FILE_PATH)
         add_job_response = add_clustering_job('choice1', 'HSDES_recommendation_clustering_job', '["Errors"]', FILE_PATH)
+        
+        if add_job_response is None:
+            print(f"Failed to add clustering job for project {project}. Skipping...")
+            continue
+            
         job_id = add_job_response['project_data'].get('job_id')
         print(f"Job ID: {job_id}")
 
@@ -181,6 +194,11 @@ def main():
         # Define the file to upload
         FILE_PATH = f'./Updated_failures_{project}.csv'
         add_job_response = add_similarity_job('app1', 'HSDES_recommendation_similarity_job', 'Failure Name', 'Errors', FILE_PATH)
+        
+        if add_job_response is None:
+            print(f"Failed to add similarity job for project {project}. Skipping...")
+            continue
+            
         job_id = add_job_response['project_data'].get('job_id')
         print(f"Job ID: {job_id}")
 

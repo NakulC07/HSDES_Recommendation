@@ -25,6 +25,10 @@ class HSDES_Extraction:
 
     def get_hsdes_summary(self, failure_id, axon):
         hsdes_links = []
+        # Validate failure_id: Axon IDs are typically numeric (adjust pattern if needed)
+        if not isinstance(failure_id, str) or not re.fullmatch(r'\d+', failure_id):
+            print(f"[WARN] Skipping invalid Axon ID: {failure_id}")
+            return hsdes_links
         try:
             failure_details = axon.failure.get(failure_id)
             tickets = failure_details['tickets']
@@ -35,35 +39,35 @@ class HSDES_Extraction:
                         link = f"https://axon.intel.com/app/view/{failure_id}"
                         hsd['axon_link'] = link
                         hsdes_links.append(hsd)
-                except:
+                except Exception:
                     continue
             return hsdes_links
         except ServerError as e:
             print(f"Error: {e.reason}")
             print(f"Details: {e.details}")
-        except KeyError as e:
+        except KeyError:
             pass
 
     def get_status_scope_summary(self, vallog, axon):
         summaries = []
         status_scope_report = "intel-svtools-report-v1"
         status_scope_summary_domain = [
-            f"analyzers.b2upi", f"analyzers.upi", f"analyzers.pm", f"analyzers.cha",
-            f"analyzers.b2cxl", f"analyzers.cxl", f"analyzers.b2cmi", f"analyzers.sys_cfg",
-            f"analyzers.hiop", f"analyzers.auto", f"analyzers.ubox", f"analyzers.ras",
-            f"analyzers.oobmsm", f"analyzers.ieh", f"analyzers.mcchnl"
+            "analyzers.b2upi", "analyzers.upi", "analyzers.pm", "analyzers.cha",
+            "analyzers.b2cxl", "analyzers.cxl", "analyzers.b2cmi", "analyzers.sys_cfg",
+            "analyzers.hiop", "analyzers.auto", "analyzers.ubox", "analyzers.ras",
+            "analyzers.oobmsm", "analyzers.ieh", "analyzers.mcchnl"
         ]
-        attribute_2 = f"insights_summary"
+        attribute_2 = "insights_summary"
         try:
             summaries.append(self.get_summary(vallog, status_scope_report, "analyzers.ubox", attribute_2, axon))
-        except:
+        except Exception:
             exit
         return summaries
 
     def get_summary(self, uuid, report, domain, attribute, axon):
         try:
             payload = axon.failure.content.object.get(uuid, report)
-        except:
+        except Exception:
             payload = axon.failure.content.object.get(uuid, report)
         svtools_report_dict = json.loads(payload.decode())
         svreport = svtools.report.Report.from_dict(svtools_report_dict)
