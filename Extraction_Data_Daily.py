@@ -94,6 +94,7 @@ def process_project(project_name, input_file, output_dir):
     for value in code:
         messages.append(hsd.get_status_scope_summary(value, axon))
         summary.append(hsd.get_hsdes_summary(value, axon))
+        print(f"Summary Status {summary[-1]}")
 
     hsdes_summary_list = []
     for val in summary:

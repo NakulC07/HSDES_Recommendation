@@ -230,7 +230,7 @@ def process_project(project_name, input_dir, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    email_addresses = "svl-fvleads-india@intel.com,svl-fvmgrs-india@intel.com,svhe-fsv-india@intel.com"  # input("Please provide one or more comma-separated email recipients: ")
+    email_addresses = "nakul.choudhari@intel.com"  # input("Please provide one or more comma-separated email recipients: ")
     bar_chart_base64 = image_to_base64('./output/bar_chart.png')
     subject_text = f"AI Generated Failure Report for - GNRD-XCCp {Date}"
     body_text = f"""
