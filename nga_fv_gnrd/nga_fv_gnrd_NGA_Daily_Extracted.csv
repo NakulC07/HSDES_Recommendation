@@ -1,7 +1,4 @@
 Failure Name,Station Name,Stage,Debug Snapshot,Group Name,Failure_Id,SightingId,AxonSV Record Viewer,Signatures
-1d04fb4f,ba05wvaw0245,PostTest,c6a0a636-1019-47d8-8e41-abdff991dee3,CXL,1d04fb4f-ab00-4eac-a978-3e06bd016c11,NA,https://axonsv.app.intel.com/apps/record-viewer/c6a0a636-1019-47d8-8e41-abdff991dee3,"['HW', 'HW.CORR', 'HW.ERR']"
-e2802327,ba05wvaw0923,Test,1f6827c1-9738-4a1f-9f52-95a6f9bfbc02,Vtd,e2802327-69e4-4aad-83ed-bba7d79dfc03,NA,https://axonsv.app.intel.com/apps/record-viewer/1f6827c1-9738-4a1f-9f52-95a6f9bfbc02,"['HW', 'HW.CORR', 'HW.ERR']"
-31e877bc,ba05wvaw0240,RebootStation,,MMX,31e877bc-b949-4563-8f80-d900921d4431,NA,,[]
 e2ee17f6,ba05wvaw0278,Test,bedc8952-1e09-4002-81d4-72eca665e1a9,Vtd,e2ee17f6-4f82-4fd3-904a-147f5726e611,NA,https://axonsv.app.intel.com/apps/record-viewer/bedc8952-1e09-4002-81d4-72eca665e1a9,"['HW', 'HW.CORR', 'HW.ERR']"
 41750ccb,ba05wvaw0240,RebootStation,9d17a132-e495-4b63-a45b-52a237bd865c,MMX,41750ccb-4a9b-44ff-b1ab-4a20af9bfeca,NA,https://axonsv.app.intel.com/apps/record-viewer/9d17a132-e495-4b63-a45b-52a237bd865c,"['HW', 'HW.CORR', 'HW.ERR']"
 0f5ebdf9,ba05wvaw0278,Test,36365143-2cde-4924-baab-2fbcbd7ff617,Vtd,0f5ebdf9-cfd7-4bae-9ddf-d3a56f4de9a2,NA,https://axonsv.app.intel.com/apps/record-viewer/36365143-2cde-4924-baab-2fbcbd7ff617,"['HW', 'HW.CORR', 'HW.ERR']"
@@ -14,3 +11,8 @@ c0a261ff,ba05wvaw0240,RebootStation,,MMX,c0a261ff-6836-4685-921d-a1e5bb53ea28,NA
 8331a5d2,ba05wvaw0240,PreTest,,MMX,8331a5d2-257d-45c4-9c28-71010e6b20d5,NA,,[]
 17b64966,ba05wvaw0240,PreTest,,MMX,17b64966-f280-4e12-b126-5b7e7fb786c9,NA,,[]
 274b976d,ba05wvaw0293,Test,66cd51e6-059d-49f4-afce-1e6c2a11bd8d,MMX,274b976d-3c5f-4883-9ee8-67e5c3748f5b,NA,https://axonsv.app.intel.com/apps/record-viewer/66cd51e6-059d-49f4-afce-1e6c2a11bd8d,"['HW', 'HW.CORR', 'HW.ERR']"
+27125e29,ba05wvaw0277,PreBoot,,CI_GNRD_XCCp,27125e29-c40e-4f6f-bbb4-8bf08a200ab6,NA,,[]
+8d2e8c06,ba05wvaw0249,PreBoot,,CI_GNRD_XCCp,8d2e8c06-8e27-436d-a264-7b97959bd54f,NA,,[]
+dda8e9d6,ba05wvaw0270,PreBoot,,ci_gnrd_es2,dda8e9d6-8949-40e6-9373-9ea707bfac04,NA,,[]
+d80749c0,ba05wvaw0245,PreBoot,,ci_gnrd_es2,d80749c0-e25d-40cd-83b5-a5e6aaa1748c,NA,,[]
+c1acd388,ba05wvaw0248,PreBoot,,ci_gnrd_es2,c1acd388-861c-4a9a-b5e0-ae77b586d9ac,NA,,[]
