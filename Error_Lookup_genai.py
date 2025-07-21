@@ -3,7 +3,7 @@ import pandas as pd
 import base64
 import re
 from datetime import datetime
-from openai_connector import OpenAIConnector
+from geni_handler import GeniHandler
 import send_email_connector as email_connector
 from HSDES_Extraction import HsdConnector , process_data_in_chunks
 import time
@@ -33,40 +33,54 @@ def process_cluster(group, connector, hsd_connector):
         val = hsdes_link.split('/')
         hsd_id = val[6]
         hsd_data = hsd_connector.get_hsd(hsd_id)
-        hsd_summary = process_data_in_chunks(pd.DataFrame([hsd_data]), connector)
+        # Use GeniHandler with focus ID 9 for HSD-specific data processing
+        hsd_geni_connector = GeniHandler(focus_id="9")
+        hsd_summary = process_data_in_chunks(pd.DataFrame([hsd_data]), hsd_geni_connector)
         hsd_summary = f"HSDES Summary for {hsd_id}: {hsd_summary}"
 
     output = group.to_string(index=False)
     if len(output) > 128000:
         output = output[:128000]
 
-    prompt = f"""
-    Hi, this is the failure report of the last 2 days in the project. For now, I am providing you with similar hang occurrences with some initial insight about the signature.
-    The following data contains details about unique failures processed with a clustering algorithm. Each cluster is formed based on the failure signature similarity. The 'Base sentence cluster' column indicates the assigned cluster for each failure. Please provide a detailed summary for each cluster in the following HTML format:
-    <div>
-        <strong>Failure Type {cluster_number} - Cluster {cluster_number}</strong>
-        <ul>
-            <li><strong>Sentences in this cluster primarily involve errors regarding:</strong> [List of key error phrases]</li>
-            <li><strong>Hsdes link:</strong> Please list each link completely with a description <a href="{hsdes_link}">{hsdes_link}</a>, e.g., "HSDES Link for PCIe Issue"</li>
-            <li><strong>Axon Link:</strong> Please list each link completely with a description <a href="{axon_link}">{axon_link}</a>, e.g., "Axon Link for PCIe Issue"</li>
-            <li><strong>Root Cause Notes</strong></li>
-            <li><strong>Fix Description</strong></li>
-            <li><strong>Component</strong></li>
-            <li><strong>Discussion</strong></li>
-        </ul>
-    </div>
-    Extract the following details from the given data of failures and provide a comprehensive report:
-    
-    Here is the data for the current cluster:
-    {output}
-    {hsd_summary}
-    """
-    messages = [
-        {"role": "system", "content": "You are an AI assistant. Your role is to furnish individuals with comprehensive details."},
-        {"role": "user", "content": prompt}
-    ]
-    res = connector.run_prompt(messages)
-    response = res['response']
+    prompt = f"""Analyze the following Intel validation failure data and provide a comprehensive HTML-formatted report.
+
+TASK: Generate a detailed failure analysis summary for cluster {cluster_number}
+
+DATA CONTEXT:
+- Project failure report from last 2 days
+- Failures grouped by signature similarity using clustering algorithm
+- Each cluster represents similar failure patterns
+
+REQUIRED OUTPUT FORMAT:
+<div>
+    <strong>Failure Type {cluster_number} - Cluster {cluster_number}</strong>
+    <ul>
+        <li><strong>Sentences in this cluster primarily involve errors regarding:</strong> [Identify and list key error patterns and phrases]</li>
+        <li><strong>Hsdes link:</strong> <a href="{hsdes_link}">{hsdes_link}</a> - [Provide descriptive text for the HSDES issue]</li>
+        <li><strong>Axon Link:</strong> <a href="{axon_link}">{axon_link}</a> - [Provide descriptive text for the Axon analysis]</li>
+        <li><strong>Root Cause Notes:</strong> [Analyze technical root causes based on the failure data]</li>
+        <li><strong>Fix Description:</strong> [Suggest specific remediation steps]</li>
+        <li><strong>Component:</strong> [Identify affected hardware/software components]</li>
+        <li><strong>Discussion:</strong> [Provide additional insights and analysis]</li>
+    </ul>
+</div>
+
+ANALYSIS REQUIREMENTS:
+1. Extract key error patterns and technical issues
+2. Identify root causes from the failure signatures
+3. Suggest actionable fixes and workarounds
+4. Determine affected components (CPU, Memory, PCIe, etc.)
+5. Provide technical discussion and insights
+
+FAILURE DATA:
+{output}
+
+ADDITIONAL HSDES CONTEXT:
+{hsd_summary if hsd_summary else "No additional HSDES data available"}
+
+Please provide a comprehensive analysis focusing on technical accuracy and actionable insights."""
+    # Use the main connector (focus ID 6) for general report making
+    response = connector.send_query(prompt, context="Failure Analysis Report")
     formatted_response = make_links_clickable(response)
     formatted_response = response.replace("**", "")
     formatted_response = re.sub(r'\)\)', ')', formatted_response)
@@ -197,12 +211,18 @@ def process_project(project_name, input_dir, output_dir):
     hang_error_df = hang_error_df.loc[:, ~hang_error_df.columns.str.contains('^Unnamed')]
     hang_errors = failures_df
 
-    
-    connector = OpenAIConnector()
+    # Use GeniHandler with focus ID 6 for general report making tasks
+    connector = GeniHandler(focus_id="6")
     final_summary_list = []
 
     for index, row in hang_errors.iterrows():
         error_description = row['Errors']
+        
+        # Handle NaN or non-string values
+        if pd.isna(error_description) or not isinstance(error_description, str):
+            print(f"Skipping row {index} due to invalid error description: {error_description}")
+            continue
+            
         parts = error_description.split(' ')
         cleaned_parts = [part for part in parts if part != 'None']
         error_description = ''.join(cleaned_parts)

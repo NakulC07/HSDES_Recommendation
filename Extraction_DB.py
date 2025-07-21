@@ -12,7 +12,7 @@ class HSDES_Extraction:
         # Converting debug snapshots from https:// .. format to a code format
         code = []
         for hyperlink in hyperlinks:
-            if type(hyperlink) == float:
+            if type(hyperlink) is float:
                 continue
             x = hyperlink.split('/')
             if x[0] != 'https:':

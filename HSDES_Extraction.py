@@ -1,7 +1,7 @@
 from requests_kerberos import HTTPKerberosAuth
 import requests
 import pandas as pd
-from openai_connector import OpenAIConnector
+from geni_handler import GeniHandler
 from datetime import datetime
 import os
 requests.packages.urllib3.disable_warnings()
@@ -64,22 +64,19 @@ def process_data_in_chunks(df, connector, chunk_size=50):
             Data:
             {''.join(small_chunk)}
             """
-            messages = [
-                {"role": "system", "content": "summary"},
-                {"role": "user", "content": prompt}
-            ]
-            res = connector.run_prompt(messages)
-            res = replace_characters_in_dict_values(res, ',', ';', '|', ',')
-            final_summary += res['response'] + "\n"
-        except OpenAIConnector.BadRequestError as e:
-            print(e)
+            # Use Geni handler's send_query method instead of run_prompt
+            response = connector.send_query(prompt, context="HSD Analysis Task")
+            final_summary += response + "\n"
+        except Exception as e:
+            print(f"Error processing chunk: {e}")
     return final_summary
 
 def process_project(project_name, input_file, output_dir):
     now = datetime.now()
     Date = now.strftime("%Y-%m-%d")
     df = pd.read_csv(input_file)
-    connector = OpenAIConnector()
+    # Use GeniHandler with focus ID 9 for HSD-oriented tasks
+    connector = GeniHandler(focus_id="9")
     final_summary = process_data_in_chunks(df, connector)
 
     if not os.path.exists(output_dir):
