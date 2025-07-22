@@ -4,8 +4,12 @@ import pandas as pd
 import re
 import pyaxon
 import svtools.report
+import warnings
 from pyaxon import Axon, ServerError
 from dotenv import load_dotenv
+
+# Suppress the FutureWarning from svtools.report about pandas.read_json
+warnings.filterwarnings("ignore", message="Passing literal json to 'read_json' is deprecated", category=FutureWarning)
 
 class HSDES_Extraction:
     def hyperlink(self, hyperlinks):

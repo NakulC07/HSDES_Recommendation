@@ -12,7 +12,7 @@ class HSDES_Extraction:
         # Converting debug snapshots from https:// .. format to a code format
         code = []
         for hyperlink in hyperlinks:
-            if type(hyperlink) == float:
+            if type(hyperlink) is float:
                 continue
             x = hyperlink.split('/')
             if x[0] != 'https:':
@@ -26,7 +26,7 @@ class HSDES_Extraction:
     def get_hsdes_summary(self, failure_id, axon):
         hsdes_links = []
         # Validate failure_id: Axon IDs are typically numeric (adjust pattern if needed)
-        if not isinstance(failure_id, str) or not re.fullmatch(r'\d+', failure_id):
+        if not isinstance(failure_id, str) or not re.fullmatch(r'[a-fA-F0-9-]{36}', failure_id):
             print(f"[WARN] Skipping invalid Axon ID: {failure_id}")
             return hsdes_links
         try:

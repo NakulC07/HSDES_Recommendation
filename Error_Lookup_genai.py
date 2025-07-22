@@ -3,10 +3,11 @@ import pandas as pd
 import base64
 import re
 from datetime import datetime
-from openai_connector import OpenAIConnector
+from geni_handler import GeniHandler
 import send_email_connector as email_connector
 from HSDES_Extraction import HsdConnector , process_data_in_chunks
 import time
+from bs4 import BeautifulSoup
 
 def image_to_base64(file_path):
     with open(file_path, "rb") as image_file:
@@ -33,40 +34,54 @@ def process_cluster(group, connector, hsd_connector):
         val = hsdes_link.split('/')
         hsd_id = val[6]
         hsd_data = hsd_connector.get_hsd(hsd_id)
-        hsd_summary = process_data_in_chunks(pd.DataFrame([hsd_data]), connector)
+        # Use GeniHandler with focus ID 9 for HSD-specific data processing
+        hsd_geni_connector = GeniHandler(focus_id="9")
+        hsd_summary = process_data_in_chunks(pd.DataFrame([hsd_data]), hsd_geni_connector)
         hsd_summary = f"HSDES Summary for {hsd_id}: {hsd_summary}"
 
     output = group.to_string(index=False)
     if len(output) > 128000:
         output = output[:128000]
 
-    prompt = f"""
-    Hi, this is the failure report of the last 2 days in the project. For now, I am providing you with similar hang occurrences with some initial insight about the signature.
-    The following data contains details about unique failures processed with a clustering algorithm. Each cluster is formed based on the failure signature similarity. The 'Base sentence cluster' column indicates the assigned cluster for each failure. Please provide a detailed summary for each cluster in the following HTML format:
-    <div>
-        <strong>Failure Type {cluster_number} - Cluster {cluster_number}</strong>
-        <ul>
-            <li><strong>Sentences in this cluster primarily involve errors regarding:</strong> [List of key error phrases]</li>
-            <li><strong>Hsdes link:</strong> Please list each link completely with a description <a href="{hsdes_link}">{hsdes_link}</a>, e.g., "HSDES Link for PCIe Issue"</li>
-            <li><strong>Axon Link:</strong> Please list each link completely with a description <a href="{axon_link}">{axon_link}</a>, e.g., "Axon Link for PCIe Issue"</li>
-            <li><strong>Root Cause Notes</strong></li>
-            <li><strong>Fix Description</strong></li>
-            <li><strong>Component</strong></li>
-            <li><strong>Discussion</strong></li>
-        </ul>
-    </div>
-    Extract the following details from the given data of failures and provide a comprehensive report:
-    
-    Here is the data for the current cluster:
-    {output}
-    {hsd_summary}
-    """
-    messages = [
-        {"role": "system", "content": "You are an AI assistant. Your role is to furnish individuals with comprehensive details."},
-        {"role": "user", "content": prompt}
-    ]
-    res = connector.run_prompt(messages)
-    response = res['response']
+    prompt = f"""Analyze the following Intel validation failure data and provide a comprehensive HTML-formatted report.
+
+TASK: Generate a detailed failure analysis summary for cluster {cluster_number}
+
+DATA CONTEXT:
+- Project failure report from last 2 days
+- Failures grouped by signature similarity using clustering algorithm
+- Each cluster represents similar failure patterns
+
+REQUIRED OUTPUT FORMAT:
+<div>
+    <strong>Failure Type {cluster_number} - Cluster {cluster_number}</strong>
+    <ul>
+        <li><strong>Sentences in this cluster primarily involve errors regarding:</strong> [Identify and list key error patterns and phrases]</li>
+        <li><strong>Hsdes link:</strong> <a href="{hsdes_link}">{hsdes_link}</a> - [Provide descriptive text for the HSDES issue]</li>
+        <li><strong>Axon Link:</strong> <a href="{axon_link}">{axon_link}</a> - [Provide descriptive text for the Axon analysis]</li>
+        <li><strong>Root Cause Notes:</strong> [Analyze technical root causes based on the failure data]</li>
+        <li><strong>Fix Description:</strong> [Suggest specific remediation steps]</li>
+        <li><strong>Component:</strong> [Identify affected hardware/software components]</li>
+        <li><strong>Discussion:</strong> [Provide additional insights and analysis]</li>
+    </ul>
+</div>
+
+ANALYSIS REQUIREMENTS:
+1. Extract key error patterns and technical issues
+2. Identify root causes from the failure signatures
+3. Suggest actionable fixes and workarounds
+4. Determine affected components (CPU, Memory, PCIe, etc.)
+5. Provide technical discussion and insights
+
+FAILURE DATA:
+{output}
+
+ADDITIONAL HSDES CONTEXT:
+{hsd_summary if hsd_summary else "No additional HSDES data available"}
+
+Please provide a comprehensive analysis focusing on technical accuracy and actionable insights."""
+    # Use the main connector (focus ID 6) for general report making
+    response = connector.send_query(prompt, context="Failure Analysis Report")
     formatted_response = make_links_clickable(response)
     formatted_response = response.replace("**", "")
     formatted_response = re.sub(r'\)\)', ')', formatted_response)
@@ -81,12 +96,20 @@ def get_top_similar_entries(hang_error, hang_error_df):
 def consolidate_summaries(summaries):
     consolidated = {}
 
-    for summary in summaries:
+    for i, summary in enumerate(summaries):
         # Extract failure type and cluster from the summary
         failure_type_match = re.search(r'Failure Type (\d+)', summary)
         cluster_match = re.search(r'Cluster (\d+)', summary)
-        failure_type = failure_type_match.group(1)
-        cluster = cluster_match.group(1)
+        
+        # Handle cases where regex doesn't match
+        if failure_type_match and cluster_match:
+            failure_type = failure_type_match.group(1)
+            cluster = cluster_match.group(1)
+        else:
+            # Use index as fallback if regex patterns don't match
+            print(f"Warning: Could not extract failure type/cluster from summary {i}. Using fallback grouping.")
+            failure_type = f"unknown_{i}"
+            cluster = f"unknown_{i}"
 
         # Use (failure_type, cluster) as the grouping key
         key = (failure_type, cluster)
@@ -119,7 +142,6 @@ def extract_links(html_string):
 
     return hsdes_link, axon_link
 
-
 def generate_html_table(summaries):
     html = """
     <html>
@@ -132,49 +154,71 @@ def generate_html_table(summaries):
                 <th>Root Cause Notes</th>
                 <th>Fix Description</th>
                 <th>HSDES Links</th>
+                <th>Axon Links</th>
                 <th>Component</th>
-                <th>Comments</th>
+                <th>Discussion</th>
             </tr>
     """
     for summary in summaries:
-        #cluster = re.search(r'Cluster (\d+)', summary).group(1)
-        hsdes_link, axon_link = extract_links(summary)
+        soup = BeautifulSoup(summary, "html.parser")
+        # Failure Type
+        failure_type = "N/A"
+        strong = soup.find("strong")
+        if strong:
+            failure_type = strong.text.strip()
 
-        # Skip rows where hsdes_link is None or empty
-        if not hsdes_link:
-            continue
+        # Error
+        error = "N/A"
+        # HSDES Link
+        hsdes_link = "N/A"
+        axon_link = "N/A"
+        # Root Cause Notes
+        root_cause = "N/A"
+        # Fix Description
+        fix_desc = "N/A"
+        # Component
+        component = "N/A"
+        # Discussion
+        discussion = "N/A"
+        for li in soup.find_all("li"):
+            # Use a more robust check for the error pattern line
+            if li.text.strip().startswith("Sentences in this cluster primarily involve errors regarding:"):
+                error = li.text.split(":", 1)[-1].strip()
+                continue
+            if "Hsdes link:" in li.text:
+                a = li.find("a")
+                if a:
+                    hsdes_link = f'<a href="{a["href"]}">{a["href"]}</a>'
+            if "Axon Link:" in li.text:
+                a = li.find("a")
+                if a:
+                    axon_link = f'<a href="{a["href"]}">{a["href"]}</a>'
+                continue
+            if "Root Cause Notes:" in li.text:
+                root_cause = li.text.split(":", 1)[-1].strip()
+                continue
+            if "Fix Description:" in li.text:
+                fix_desc = li.text.split(":", 1)[-1].strip()
+                continue
+            if "Component:" in li.text:
+                component = li.text.split(":", 1)[-1].strip()
+                continue
+            if "Discussion:" in li.text:
+                discussion = li.text.split(":", 1)[-1].strip()
 
-        failure_type = "New Failure type" if hsdes_link is None else "Failure Type exists"
-        time.sleep(1)
-        error_descriptions = re.search(r'<li><strong>Sentences in this cluster primarily involve errors regarding:</strong> (.*?)</li>', summary)
-        time.sleep(1)
-        if error_descriptions is not None:
-            error_descriptions=error_descriptions.group(1)
-        hsdes_link = make_links_clickable(hsdes_link)
-        time.sleep(1)
-        root_cause_notes = re.search(r'Root Cause Notes:\s*(.*?)(?=\n|$)', summary)
-        time.sleep(1)
-        fix_description = re.search(r'Fix Description:\s*(.*?)(?=\n|$)', summary)
-        time.sleep(1)
-        component = re.search(r'Component:\s*(.*?)(?=\n|$)', summary)
-        time.sleep(1)
-        comments = re.search(r'Comments:\s*(.*?)(?=\n|$)', summary)
-        
-        root_cause_notes = root_cause_notes.group(1).strip() if root_cause_notes else "N/A"
-        fix_description = fix_description.group(1).strip() if fix_description else "N/A"
-        component = component.group(1).strip() if component else "N/A"
-        comments = comments.group(1).strip() if comments else "N/A"
         html += f"""
             <tr>
                 <td>{failure_type}</td>
-                <td>{error_descriptions}</td>
-                <td>{root_cause_notes}</td>
-                <td>{fix_description}</td>
+                <td>{error}</td>
+                <td>{root_cause}</td>
+                <td>{fix_desc}</td>
                 <td>{hsdes_link}</td>
+                <td>{axon_link}</td>
                 <td>{component}</td>
-                <td>{comments}</td>
+                <td>{discussion}</td>
             </tr>
         """
+
     html += """
         </table>
     </body>
@@ -197,15 +241,21 @@ def process_project(project_name, input_dir, output_dir):
     hang_error_df = hang_error_df.loc[:, ~hang_error_df.columns.str.contains('^Unnamed')]
     hang_errors = failures_df
 
-    
-    connector = OpenAIConnector()
+    # Use GeniHandler with focus ID 6 for general report making tasks
+    connector = GeniHandler(focus_id="6")
     final_summary_list = []
 
     for index, row in hang_errors.iterrows():
         error_description = row['Errors']
+        
+        # Handle NaN or non-string values
+        if pd.isna(error_description) or not isinstance(error_description, str):
+            print(f"Skipping row {index} due to invalid error description: {error_description}")
+            continue
+            
         parts = error_description.split(' ')
         cleaned_parts = [part for part in parts if part != 'None']
-        error_description = ''.join(cleaned_parts)
+        error_description = ' '.join(cleaned_parts)
         top_entries = get_top_similar_entries(error_description, hang_error_df)
         for _, entry in top_entries.iterrows():
             entry_summary = process_cluster(entry, connector, hsd_connector)
@@ -230,7 +280,7 @@ def process_project(project_name, input_dir, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    email_addresses = "svl-fvleads-india@intel.com,svl-fvmgrs-india@intel.com,svhe-fsv-india@intel.com"  # input("Please provide one or more comma-separated email recipients: ")
+    email_addresses = "nakul.choudhari@intel.com"  # input("Please provide one or more comma-separated email recipients: ")
     bar_chart_base64 = image_to_base64('./output/bar_chart.png')
     subject_text = f"AI Generated Failure Report for - GNRD-XCCp {Date}"
     body_text = f"""
