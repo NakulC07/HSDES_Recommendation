@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv, set_key
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
 # Get credentials from environment variables
 CLIENT_ID = os.getenv("CLIENT_ID")
@@ -12,8 +12,8 @@ AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 SCOPE = ['api://8a2ecaf5-fb85-4534-81aa-2df3e7f24907/API.Read']  # Define the scopes you want to request
 
 # Get username and password from environment variables
-USERNAME = os.getenv("USERNAME")
-PASSWORD = os.getenv("PASSWORD")
+USERNAME = os.getenv("GENI_USERNAME")
+PASSWORD = os.getenv("GENI_PASSWORD")
 
 def authenticate_user():
     # Create a confidential client application

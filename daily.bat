@@ -1,5 +1,8 @@
 @echo off
 
+REM Run GENI token generator
+python geni_token_generator.py
+
 REM Run NGA_Extraction_runner.py
 python NGA_Extraction_runner.py
 
