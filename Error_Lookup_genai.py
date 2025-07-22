@@ -7,6 +7,7 @@ from geni_handler import GeniHandler
 import send_email_connector as email_connector
 from HSDES_Extraction import HsdConnector , process_data_in_chunks
 import time
+from bs4 import BeautifulSoup
 
 def image_to_base64(file_path):
     with open(file_path, "rb") as image_file:
@@ -95,12 +96,20 @@ def get_top_similar_entries(hang_error, hang_error_df):
 def consolidate_summaries(summaries):
     consolidated = {}
 
-    for summary in summaries:
+    for i, summary in enumerate(summaries):
         # Extract failure type and cluster from the summary
         failure_type_match = re.search(r'Failure Type (\d+)', summary)
         cluster_match = re.search(r'Cluster (\d+)', summary)
-        failure_type = failure_type_match.group(1)
-        cluster = cluster_match.group(1)
+        
+        # Handle cases where regex doesn't match
+        if failure_type_match and cluster_match:
+            failure_type = failure_type_match.group(1)
+            cluster = cluster_match.group(1)
+        else:
+            # Use index as fallback if regex patterns don't match
+            print(f"Warning: Could not extract failure type/cluster from summary {i}. Using fallback grouping.")
+            failure_type = f"unknown_{i}"
+            cluster = f"unknown_{i}"
 
         # Use (failure_type, cluster) as the grouping key
         key = (failure_type, cluster)
@@ -133,7 +142,6 @@ def extract_links(html_string):
 
     return hsdes_link, axon_link
 
-
 def generate_html_table(summaries):
     html = """
     <html>
@@ -146,49 +154,71 @@ def generate_html_table(summaries):
                 <th>Root Cause Notes</th>
                 <th>Fix Description</th>
                 <th>HSDES Links</th>
+                <th>Axon Links</th>
                 <th>Component</th>
-                <th>Comments</th>
+                <th>Discussion</th>
             </tr>
     """
     for summary in summaries:
-        #cluster = re.search(r'Cluster (\d+)', summary).group(1)
-        hsdes_link, axon_link = extract_links(summary)
+        soup = BeautifulSoup(summary, "html.parser")
+        # Failure Type
+        failure_type = "N/A"
+        strong = soup.find("strong")
+        if strong:
+            failure_type = strong.text.strip()
 
-        # Skip rows where hsdes_link is None or empty
-        if not hsdes_link:
-            continue
+        # Error
+        error = "N/A"
+        # HSDES Link
+        hsdes_link = "N/A"
+        axon_link = "N/A"
+        # Root Cause Notes
+        root_cause = "N/A"
+        # Fix Description
+        fix_desc = "N/A"
+        # Component
+        component = "N/A"
+        # Discussion
+        discussion = "N/A"
+        for li in soup.find_all("li"):
+            # Use a more robust check for the error pattern line
+            if li.text.strip().startswith("Sentences in this cluster primarily involve errors regarding:"):
+                error = li.text.split(":", 1)[-1].strip()
+                continue
+            if "Hsdes link:" in li.text:
+                a = li.find("a")
+                if a:
+                    hsdes_link = f'<a href="{a["href"]}">{a["href"]}</a>'
+            if "Axon Link:" in li.text:
+                a = li.find("a")
+                if a:
+                    axon_link = f'<a href="{a["href"]}">{a["href"]}</a>'
+                continue
+            if "Root Cause Notes:" in li.text:
+                root_cause = li.text.split(":", 1)[-1].strip()
+                continue
+            if "Fix Description:" in li.text:
+                fix_desc = li.text.split(":", 1)[-1].strip()
+                continue
+            if "Component:" in li.text:
+                component = li.text.split(":", 1)[-1].strip()
+                continue
+            if "Discussion:" in li.text:
+                discussion = li.text.split(":", 1)[-1].strip()
 
-        failure_type = "New Failure type" if hsdes_link is None else "Failure Type exists"
-        time.sleep(1)
-        error_descriptions = re.search(r'<li><strong>Sentences in this cluster primarily involve errors regarding:</strong> (.*?)</li>', summary)
-        time.sleep(1)
-        if error_descriptions is not None:
-            error_descriptions=error_descriptions.group(1)
-        hsdes_link = make_links_clickable(hsdes_link)
-        time.sleep(1)
-        root_cause_notes = re.search(r'Root Cause Notes:\s*(.*?)(?=\n|$)', summary)
-        time.sleep(1)
-        fix_description = re.search(r'Fix Description:\s*(.*?)(?=\n|$)', summary)
-        time.sleep(1)
-        component = re.search(r'Component:\s*(.*?)(?=\n|$)', summary)
-        time.sleep(1)
-        comments = re.search(r'Comments:\s*(.*?)(?=\n|$)', summary)
-        
-        root_cause_notes = root_cause_notes.group(1).strip() if root_cause_notes else "N/A"
-        fix_description = fix_description.group(1).strip() if fix_description else "N/A"
-        component = component.group(1).strip() if component else "N/A"
-        comments = comments.group(1).strip() if comments else "N/A"
         html += f"""
             <tr>
                 <td>{failure_type}</td>
-                <td>{error_descriptions}</td>
-                <td>{root_cause_notes}</td>
-                <td>{fix_description}</td>
+                <td>{error}</td>
+                <td>{root_cause}</td>
+                <td>{fix_desc}</td>
                 <td>{hsdes_link}</td>
+                <td>{axon_link}</td>
                 <td>{component}</td>
-                <td>{comments}</td>
+                <td>{discussion}</td>
             </tr>
         """
+
     html += """
         </table>
     </body>
@@ -225,7 +255,7 @@ def process_project(project_name, input_dir, output_dir):
             
         parts = error_description.split(' ')
         cleaned_parts = [part for part in parts if part != 'None']
-        error_description = ''.join(cleaned_parts)
+        error_description = ' '.join(cleaned_parts)
         top_entries = get_top_similar_entries(error_description, hang_error_df)
         for _, entry in top_entries.iterrows():
             entry_summary = process_cluster(entry, connector, hsd_connector)

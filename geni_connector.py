@@ -10,7 +10,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 class GeniConnector:
     def __init__(self, focus_id="9"):
         load_dotenv()
-        self.token = os.getenv("GENI_TOKEN")
+        self.token = os.getenv("ACCESS_TOKEN")
         self.focus_id = focus_id
         self.url = f"https://laas-aks-prod01.laas.icloud.intel.com/genichatservice/Chat/askQuestion?focusId={self.focus_id}"
         self.headers = {
